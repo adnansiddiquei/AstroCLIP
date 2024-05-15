@@ -1,0 +1,20 @@
+name: astroclip_env
+channels:
+  - conda-forge
+  - defaults
+  - pytorch
+dependencies:
+  - python=3.12.*
+  - pytorch=2.1.*
+  - pytorch-lightning=1.7.*
+  - lightning-bolts=0.7.*
+  - pre-commit  # not required for the project, but useful for development
+  - jupyter
+  - ruff  # linter and formatter
+  - h5py  # legacy_survey.py uses this to load the data
+  - datasets  # Huggingface datasets, as above, required by legacy_survey.py
+  - matplotlib
+  - pip
+  - pip:
+    - git+https://github.com/aliutkus/torchinterp1d@ffdbcedb99a3a257d4130254f64ad0e6610adfda  # required by spender
+    - spender==0.2.4  # will install all the dependencies for spender, allowing us to use torch.hub to load pretrained model
