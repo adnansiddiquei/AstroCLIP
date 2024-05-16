@@ -1,3 +1,35 @@
+# >>> Poetry Configuration START
+[tool.poetry]
+name = "astroclip"
+version = "0.1.0"
+description = ""
+authors = ["adnansiddiquei"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+torch = "^2.3"
+pytorch-lightning = "^1.7"
+lightning-bolts = "^0.7"  # Required to load Moco_v2 model
+torchvision = "*"  # should be installed with pytorch, but placed here for clarity
+h5py = "^3.7"  # legacy_survey.py uses this to load the data
+datasets = "^2.2"  # Huggingface datasets, as above, required by legacy_survey.py
+matplotlib = "^3.5"
+spender = "0.2.4"  # will install all the dependencies for spender, allowing us to use torch.hub to load pretrained model
+# torchinterp1d is required by spender
+torchinterp1d = {git = "https://github.com/aliutkus/torchinterp1d", rev = "ffdbcedb99a3a257d4130254f64ad0e6610adfda"}
+
+[tool.poetry.dev-dependencies]
+jupyter = "*"
+pre-commit = "^2.18"
+ruff = "*"  # linter and formatter
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+# <<< Poetry Configuration END
+
+# >>> Ruff Configuration START
 [tool.ruff]
 # Assume Python 3.12
 target-version = "py312"
@@ -14,3 +46,4 @@ select = ["E4", "E7", "E9", "F", "W"]
 [tool.ruff.format]
 # Override the default setting, which is "double".
 quote-style = "single"
+# <<< Ruff Configuration END
