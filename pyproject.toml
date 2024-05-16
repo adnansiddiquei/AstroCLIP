@@ -5,6 +5,7 @@ version = "0.1.0"
 description = ""
 authors = ["adnansiddiquei"]
 readme = "README.md"
+packages = [{include = "astroclip"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -13,8 +14,8 @@ pytorch-lightning = "^1.7"
 lightning-bolts = "^0.7"  # Required to load Moco_v2 model
 torchvision = "*"  # should be installed with pytorch, but placed here for clarity
 h5py = "^3.7"  # legacy_survey.py uses this to load the data
-datasets = "^2.2"  # Huggingface datasets, as above, required by legacy_survey.py
-matplotlib = "^3.5"
+datasets = "^2.19"  # Huggingface datasets, as above, required by legacy_survey.py
+matplotlib = "*"
 spender = "0.2.4"  # will install all the dependencies for spender, allowing us to use torch.hub to load pretrained model
 # torchinterp1d is required by spender
 torchinterp1d = {git = "https://github.com/aliutkus/torchinterp1d", rev = "ffdbcedb99a3a257d4130254f64ad0e6610adfda"}
