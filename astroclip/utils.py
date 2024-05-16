@@ -3,6 +3,7 @@ import torch
 import numpy as np
 import pytorch_lightning as L
 import os
+import datasets
 from datasets import load_dataset
 
 
@@ -54,14 +55,13 @@ def create_dir_if_required(script_filepath: str, dir_name: str) -> str:
     return dir_to_make
 
 
-def download_desi_dataset():
+def download_desi_dataset(cache_dir: str) -> datasets.dataset_dict.DatasetDict:
     cwd = os.path.dirname(os.path.realpath(__file__))
 
-    cache_dir = create_dir_if_required(__file__, '../cache')
-    dataset_dir = f'{cache_dir}/desi_dataset'
+    dataset_dir = f'{cache_dir}/datasets_astroclip'
 
     dataset = load_dataset(
-        f'{cwd}/../scripts/legacy_survey.py',
+        f'{cwd}/legacy_survey.py',
         cache_dir=dataset_dir,
         trust_remote_code=True,
     )
