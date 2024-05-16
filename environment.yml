@@ -7,7 +7,8 @@ dependencies:
   - python=3.12.*
   - pytorch=2.1.*
   - pytorch-lightning=1.7.*
-  - lightning-bolts=0.7.*
+  - lightning-bolts=0.7.*  # Required to load Moco_v2 model
+  - torchvision  # should be installed with pytorch, but placed here for clarity
   - pre-commit  # not required for the project, but useful for development
   - jupyter
   - ruff  # linter and formatter
