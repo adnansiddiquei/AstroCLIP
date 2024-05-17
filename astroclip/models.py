@@ -5,7 +5,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from pytorch_lightning.utilities.types import STEP_OUTPUT
-from torchvision.transforms import Compose
 
 
 from .losses import InfoNCELoss
@@ -15,8 +14,8 @@ class ContrastiveBimodalPretraining(L.LightningModule):
     def __init__(
         self,
         encoders: list[nn.Module],
-        augmentations: list[Compose | None] = (None, None),
-        transforms: list[Compose | None] = (None, None),
+        augmentations: list[nn.Sequential | None] = (None, None),
+        transforms: list[nn.Sequential | None] = (None, None),
         loss: nn.Module = InfoNCELoss(),
         learning_rate=5e-4,
         modality_names: list[str] = ('modality1', 'modality2'),
@@ -34,13 +33,13 @@ class ContrastiveBimodalPretraining(L.LightningModule):
             module (the encoders) which takes in an input and produces an embedding. The embeddings produced by the
             encoders must be of the same dimension. If the models are pretrained and only require fine-tuning, the
             relevant weights should be frozen before passing them to this module.
-        augmentations : list[Compose | None]
+        augmentations : list[nn.Sequential | None]
             List of two augmentations, one for each modality. This must be a list of length 2, each element being a
-            torchvision.transforms.Compose object which takes in an input and applies a series of transformations to it.
+            torch.nn.Sequential object which takes in an input and applies a series of transformations to it.
             If no augmentations are required for a modality, the corresponding element in the list should be None.
-        transforms : list[Compose | None]
+        transforms : list[nn.Sequential | None]
             List of two transforms, one for each modality. This must be a list of length 2, each element being a
-            torchvision.transforms.Compose object which takes in an input and applies a series of transformations to it.
+            torch.nn.Sequential object which takes in an input and applies a series of transformations to it.
             If no transforms are required for a modality, the corresponding element in the list should be None.
         loss : nn.Module
             The loss function to use for training. This should be a PyTorch module which takes in two tensors of shape
