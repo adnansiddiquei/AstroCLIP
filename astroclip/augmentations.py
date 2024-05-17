@@ -20,8 +20,12 @@ class Roll(nn.Module):
         self.sigma = sigma
 
     def forward(self, x: torch.Tensor):
-        shifts = torch.round((torch.randn(2) * self.sigma) + self.mu).int().tolist()
-        return torch.roll(x, shifts, (-1, -2))
+        shifts = (
+            torch.round((torch.randn(2, device=x.device) * self.sigma) + self.mu)
+            .int()
+            .tolist()
+        )
+        return x.roll(shifts, (-1, -2))
 
 
 class AddGaussianNoise(nn.Module):
@@ -41,4 +45,4 @@ class AddGaussianNoise(nn.Module):
         self.std = std
 
     def forward(self, x: torch.Tensor):
-        return x + (torch.randn_like(x) * self.std) + self.mean
+        return x + (torch.randn_like(x, device=x.device) * self.std) + self.mean
