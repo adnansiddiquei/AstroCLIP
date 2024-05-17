@@ -4,6 +4,7 @@ import os
 
 
 if __name__ == '__main__':
+    # 61.1GB dataset, took me roughly 4:40hr to download
     with open('config.yaml', 'r') as file:
         config = yaml.safe_load(file)
 
