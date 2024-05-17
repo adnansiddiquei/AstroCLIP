@@ -100,6 +100,32 @@ class ContrastiveBimodalPretraining(L.LightningModule):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
         return optimizer
 
+    def _apply_augmentations(self, batch) -> dict:
+        mod1, mod2 = batch[self.mod1_name], batch[self.mod2_name]
+
+        mod1 = (
+            self.mod1_augmentations(mod1)
+            if self.mod1_augmentations is not None
+            else mod1
+        )
+
+        mod2 = (
+            self.mod2_augmentations(mod2)
+            if self.mod2_augmentations is not None
+            else mod2
+        )
+
+        return {self.mod1_name: mod1, self.mod2_name: mod2}
+
+    def _apply_transforms(self, batch) -> dict:
+        mod1, mod2 = batch[self.mod1_name], batch[self.mod2_name]
+
+        mod1 = self.mod1_transforms(mod1) if self.mod1_transforms is not None else mod1
+
+        mod2 = self.mod2_transforms(mod2) if self.mod2_transforms is not None else mod2
+
+        return {self.mod1_name: mod1, self.mod2_name: mod2}
+
     @torch.no_grad()
     def on_after_batch_transfer(self, batch: Any, dataloader_idx: int) -> Any:
         # Do some simple checks to ensure that the batch is correctly formatted
@@ -116,24 +142,10 @@ class ContrastiveBimodalPretraining(L.LightningModule):
         ), f"Batch must contain key '{self.mod1_name}'"
 
         # Apply augmentations and transforms to the modalities
-        mod1, mod2 = batch[self.mod1_name], batch[self.mod2_name]
-
         if self.trainer.training:
             # perform the augmentations only if training, we do not want to augment the data during validation
-            mod1 = (
-                self.mod1_augmentations(mod1)
-                if self.mod2_augmentations is not None
-                else mod1
-            )
+            batch = self._apply_augmentations(batch)
 
-            mod2 = (
-                self.mod2_augmentations(mod2)
-                if self.mod2_augmentations is not None
-                else mod2
-            )
+        batch = self._apply_transforms(batch)
 
-        mod1 = self.mod1_transforms(mod1) if self.mod1_transforms is not None else mod1
-
-        mod2 = self.mod2_transforms(mod2) if self.mod2_transforms is not None else mod2
-
-        return {self.mod1_name: mod1, self.mod2_name: mod2}
+        return batch

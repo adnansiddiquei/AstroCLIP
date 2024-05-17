@@ -1,7 +1,7 @@
 import torch
 
 
-class PermuteTransform:
+class Permute:
     def __init__(self, dims):
         self.dims = dims
 
@@ -9,7 +9,7 @@ class PermuteTransform:
         return x.permute(*self.dims)
 
 
-class ReshapeTransform:
+class Reshape:
     def __init__(self, shape):
         self.shape = shape
 
