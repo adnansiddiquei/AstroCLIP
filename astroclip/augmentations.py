@@ -1,5 +1,7 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+from .utils import create_1d_gaussian_kernel
 
 
 class Roll(nn.Module):
@@ -46,3 +48,29 @@ class AddGaussianNoise(nn.Module):
 
     def forward(self, x: torch.Tensor):
         return x + (torch.randn_like(x, device=x.device) * self.std) + self.mean
+
+
+class GaussianSmoothing1d(nn.Module):
+    def __init__(self, sigma: float, kernel_size: int):
+        """
+        Creates and applies a 1D Gaussian smoothing filter to a tensor of shape (batch_size, channels, length).
+
+        Parameters
+        ----------
+        kernel_size : int
+            The size of the kernel. It should be an odd number.
+        sigma : float
+            The standard deviation of the Gaussian kernel.
+            provided.
+        """
+        super(GaussianSmoothing1d, self).__init__()
+
+        self.kernel_size = kernel_size
+        self.sigma = sigma
+
+        self.register_buffer('kernel', create_1d_gaussian_kernel(sigma, kernel_size))
+
+    def forward(self, x: torch.Tensor):
+        kernel = self.kernel.to(x.device)
+
+        return F.conv1d(x, kernel.view(1, 1, -1), padding=self.kernel_size // 2)

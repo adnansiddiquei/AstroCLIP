@@ -7,6 +7,35 @@ import datasets
 from datasets import load_dataset
 
 
+def create_1d_gaussian_kernel(sigma: float, kernel_size: int) -> torch.Tensor:
+    """
+    Create a 1D Gaussian kernel.
+
+    Parameters
+    ----------
+    sigma : float
+        The standard deviation of the Gaussian.
+    kernel_size : int
+        The size of the kernel. It should be an odd number.
+
+    Returns
+    -------
+    torch.Tensor
+        The 1D Gaussian kernel.
+    """
+    assert kernel_size % 2 == 1, 'Kernel size should be an odd number.'
+
+    # Create a tensor of size 'size' with values from -size//2 to size//2
+    x = torch.arange(
+        -int(kernel_size / 2), int(kernel_size / 2) + 1, dtype=torch.float32
+    )
+
+    kernel = torch.exp(-(x**2) / (2 * sigma**2))  # compute the 1D Gaussian filter
+    kernel = kernel / kernel.sum()  # normalise the kernel
+
+    return kernel
+
+
 def copy_weights(source: nn.Module, target: nn.Module) -> None:
     """
     Copy the weights from one model to another.
