@@ -3,8 +3,8 @@ from astroclip.utils import (
     SpectralStdDevCalculator,
     format_axes,
     save_fig,
+    load_config,
 )
-import yaml
 import os
 import torch
 import torch.nn as nn
@@ -17,11 +17,10 @@ import numpy as np
 @torch.no_grad()
 def main():
     # load the config file
-    with open('config.yaml', 'r') as file:
-        config = yaml.safe_load(file)
+    config = load_config()
 
-    cache_dir = config['general']['cache_dir']
-    output_dir = config['general']['output_dir']
+    cache_dir = config['cache_dir']
+    output_dir = config['output_dir']
 
     if not os.path.exists(cache_dir):
         raise FileNotFoundError(

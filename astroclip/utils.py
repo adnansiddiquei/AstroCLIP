@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader
 from matplotlib import pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 from matplotlib.axes import Axes
+import yaml
 
 
 def create_1d_gaussian_kernel(sigma: float, kernel_size: int) -> torch.Tensor:
@@ -254,3 +255,17 @@ def save_fig(output_dir: str, name: str, **kwargs):
     plt.savefig(filename, bbox_inches='tight', **kwargs)
 
     print('Saved figure to: ', filename)
+
+
+def load_config():
+    cwd = os.path.dirname(os.path.realpath(__file__))
+
+    with open(f'{cwd}/../config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+
+    meta = config['meta']
+
+    if meta['local']:
+        return config['local']
+    else:
+        return config['hpc']
