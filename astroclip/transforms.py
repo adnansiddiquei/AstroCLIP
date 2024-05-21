@@ -20,24 +20,24 @@ class Reshape(nn.Module):
         return x.view(*self.shape)
 
 
-class StandardizeAndAugment(nn.Module):
+class Standardize(nn.Module):
     def __init__(self, return_mean_and_std: bool = True):
         """
-        Standardize the spectrum and augment it with the mean and standard deviation.
+        Standardize a batch.
 
-        The input tensor should have shape (batch_size, 1, spectrum_length). The output tensor will have shape
-        (batch_size, 3, spectrum_length) if return_mean_and_std is True, and (batch_size, 1, spectrum_length) if
+        The input tensor should have shape (batch_size, 1, *dataset_dims). The output tensor will have shape
+        (batch_size, 3, *dataset_dims) if return_mean_and_std is True, and (batch_size, 1, *dataset_dims) if
         return_mean_and_std is False.
 
-        The first channel will be the standardized spectrum, the second channel will be the mean of the spectrum, and the
-        third channel will be the standard deviation of the spectrum.
+        The first channel will be the standardized dataset, the second channel will be the mean of the dataset, and the
+        third channel will be the standard deviation of the dataset.
 
         Parameters
         ----------
         return_mean_and_std : bool
-            Whether to return the mean and standard deviation of the spectrum along with the standardized spectrum.
+            Whether to return the mean and standard deviation of the dataset along with the standardized dataset.
         """
-        super(StandardizeAndAugment, self).__init__()
+        super(Standardize, self).__init__()
 
         self.return_mean_and_std = return_mean_and_std
 

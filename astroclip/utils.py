@@ -150,7 +150,6 @@ class SpectralStdDevCalculator:
         self.augmentations = augmentations
         self.std_dev = None
 
-    @torch.no_grad()
     def compute(self):
         sum_x = None
         sum_x_squared = None
