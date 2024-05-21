@@ -115,6 +115,7 @@ def download_desi_dataset(cache_dir: str) -> datasets.dataset_dict.DatasetDict:
         cache_dir=dataset_dir,
         trust_remote_code=True,
     )
+
     dataset.set_format(type='torch')
 
     return dataset
