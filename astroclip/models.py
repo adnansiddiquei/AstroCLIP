@@ -1,13 +1,10 @@
 from typing import Any
-
 import pytorch_lightning as L
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from pytorch_lightning.utilities.types import STEP_OUTPUT
-
-
-from .losses import InfoNCELoss
+from astroclip.losses import InfoNCELoss
 
 
 class ContrastiveBimodalPretraining(L.LightningModule):
