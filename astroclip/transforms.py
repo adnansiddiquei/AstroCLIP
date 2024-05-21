@@ -21,15 +21,25 @@ class Reshape(nn.Module):
 
 
 class StandardizeAndAugment(nn.Module):
-    def __init__(self):
+    def __init__(self, return_mean_and_std: bool = True):
         """
         Standardize the spectrum and augment it with the mean and standard deviation.
 
         The input tensor should have shape (batch_size, 1, spectrum_length). The output tensor will have shape
-        (batch_size, 3, spectrum_length) where the first channel is the standardized spectrum, the second channel is
-        the mean of the spectrum, and the third channel is the standard deviation of the spectrum.
+        (batch_size, 3, spectrum_length) if return_mean_and_std is True, and (batch_size, 1, spectrum_length) if
+        return_mean_and_std is False.
+
+        The first channel will be the standardized spectrum, the second channel will be the mean of the spectrum, and the
+        third channel will be the standard deviation of the spectrum.
+
+        Parameters
+        ----------
+        return_mean_and_std : bool
+            Whether to return the mean and standard deviation of the spectrum along with the standardized spectrum.
         """
         super(StandardizeAndAugment, self).__init__()
+
+        self.return_mean_and_std = return_mean_and_std
 
     def forward(self, x):
         # Compute mean and std along the spectrum length dimension
@@ -44,6 +54,7 @@ class StandardizeAndAugment(nn.Module):
         std_channel = stds.expand_as(x)
 
         # Concatenate along the channel dimension
-        augmented_x = torch.cat((standardized_x, mean_channel, std_channel), dim=1)
-
-        return augmented_x
+        if self.return_mean_and_std:
+            return torch.cat((standardized_x, mean_channel, std_channel), dim=1)
+        else:
+            return standardized_x
