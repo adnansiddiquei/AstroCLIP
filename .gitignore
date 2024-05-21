@@ -3,6 +3,7 @@
 # Added by Adnan
 **/*/sandbox*.ipynb
 cache/
+out/
 
 ### TeX template
 ## Core latex/pdflatex auxiliary files:

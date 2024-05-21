@@ -1,2 +1,3 @@
 general:
   cache_dir: /Users/adnansiddiquei/DocsLocal/AstroClip/astroclip/cache # Directory containing datasets and pretrained models
+  output_dir: /Users/adnansiddiquei/DocsLocal/AstroClip/astroclip/out # Directory to save output files

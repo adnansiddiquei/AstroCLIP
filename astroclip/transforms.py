@@ -58,3 +58,12 @@ class StandardizeAndAugment(nn.Module):
             return torch.cat((standardized_x, mean_channel, std_channel), dim=1)
         else:
             return standardized_x
+
+
+class ExtractKey(nn.Module):
+    def __init__(self, key):
+        super(ExtractKey, self).__init__()
+        self.key = key
+
+    def forward(self, x):
+        return x[self.key]
