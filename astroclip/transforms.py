@@ -23,21 +23,6 @@ class Reshape(nn.Module):
 
 class Standardize(nn.Module):
     def __init__(self, return_mean_and_std: bool = True):
-        """
-        Standardize a batch.
-
-        The input tensor should have shape (batch_size, 1, *dataset_dims). The output tensor will have shape
-        (batch_size, 3, *dataset_dims) if return_mean_and_std is True, and (batch_size, 1, *dataset_dims) if
-        return_mean_and_std is False.
-
-        The first channel will be the standardized dataset, the second channel will be the mean of the dataset, and the
-        third channel will be the standard deviation of the dataset.
-
-        Parameters
-        ----------
-        return_mean_and_std : bool
-            Whether to return the mean and standard deviation of the dataset along with the standardized dataset.
-        """
         super(Standardize, self).__init__()
 
         self.return_mean_and_std = return_mean_and_std
@@ -45,19 +30,15 @@ class Standardize(nn.Module):
     def forward(self, x):
         # Compute mean and std along the spectrum length dimension
         eps = 1e-6  # for numerical stability, to avoid division by zero
-        means = x.mean(dim=-1, keepdim=True) + eps
-        stds = x.std(dim=-1, keepdim=True) + eps
+        means = x.mean(dim=-1) + eps  # shape (batch_size, n_channels)
+        stds = x.std(dim=-1) + eps  # shape (batch_size, n_channels)
 
         # Standardize the spectrum
         standardized_x = (x - means) / stds
 
-        # Expand the mean and std to the same shape as x
-        mean_channel = means.expand_as(x)
-        std_channel = stds.expand_as(x)
-
         # Concatenate along the channel dimension
         if self.return_mean_and_std:
-            return torch.cat((standardized_x, mean_channel, std_channel), dim=1)
+            return standardized_x, means, stds
         else:
             return standardized_x
 

@@ -11,6 +11,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from pytorch_lightning.utilities.types import STEP_OUTPUT
 from astroclip.losses import InfoNCELoss
+from astroclip.transforms import Standardize
 
 
 class ContrastiveBimodalPretraining(L.LightningModule):
@@ -189,10 +190,9 @@ class AutoEncoder(L.LightningModule):
         decoder: nn.Module,
         learning_rate=5e-4,
         loss_fn=None,
-        pre_transforms=None,
-        post_transforms=None,
-        augmentations=None,
-        post_decoder_transforms=None,
+        pre_transforms=nn.Sequential(),
+        post_transforms=nn.Sequential(),
+        augmentations=nn.Sequential(),
     ):
         super().__init__()
         self.encoder = encoder
@@ -202,14 +202,14 @@ class AutoEncoder(L.LightningModule):
         self.pre_transforms = pre_transforms
         self.post_transforms = post_transforms
         self.augmentations = augmentations
-        self.post_decoder_transforms = post_decoder_transforms
 
     def forward(self, x):
         return self.decoder(self.encoder(x))
 
     def training_step(self, batch, batch_idx):
-        reconstruction = self(batch)
-        loss = self.loss_fn(reconstruction, batch)
+        clean_batch, augmented_batch = batch['clean_batch'], batch['augmented_batch']
+        reconstruction = self(augmented_batch)
+        loss = self.loss_fn(reconstruction, clean_batch)
         self.log('train_loss', loss, sync_dist=True)
         return loss
 
@@ -224,22 +224,20 @@ class AutoEncoder(L.LightningModule):
 
     @torch.no_grad()
     def on_after_batch_transfer(self, batch: Any, dataloader_idx: int) -> Any:
-        batch = self.pre_transforms(batch) if self.pre_transforms is not None else batch
+        batch = self.pre_transforms(batch)
 
-        # Apply augmentations only if training
         if self.trainer.training:
-            batch = (
-                self.augmentations(batch) if self.augmentations is not None else batch
-            )
+            # if we are training, then we need to retain a clean non-augmented batch for the loss calculation
+            clean_batch = batch.clone()
+            clean_batch = self.post_transforms(clean_batch)
 
-        batch = (
-            self.post_transforms(batch) if self.post_transforms is not None else batch
-        )
+            augmented_batch = self.augmentations(batch)
+            augmented_batch = self.post_transforms(augmented_batch)
 
-        if torch.isnan(batch).any():
-            raise ValueError('NaNs in batch after transformations')
-
-        return batch
+            return {'clean_batch': clean_batch, 'augmented_batch': augmented_batch}
+        else:
+            batch = self.post_transforms(batch)
+            return batch
 
 
 class SpectrumAutoEncoder(AutoEncoder):
@@ -249,10 +247,9 @@ class SpectrumAutoEncoder(AutoEncoder):
         decoder: nn.Module,
         learning_rate=5e-4,
         loss_fn=None,
-        pre_transforms=None,
-        post_transforms=None,
-        augmentations=None,
-        post_decoder_transforms=None,
+        pre_transforms=nn.Sequential(),
+        post_transforms=nn.Sequential(),
+        augmentations=nn.Sequential(),
     ):
         super().__init__(
             encoder=encoder,
@@ -262,16 +259,26 @@ class SpectrumAutoEncoder(AutoEncoder):
             pre_transforms=pre_transforms,
             post_transforms=post_transforms,
             augmentations=augmentations,
-            post_decoder_transforms=post_decoder_transforms,
         )
 
+        self.standardize = Standardize(return_mean_and_std=True)
+
     def training_step(self, batch, batch_idx):
-        reconstruction = self(batch).squeeze(1)
-        loss = self.loss_fn(reconstruction, batch[:, 0, :])
+        clean_batch, augmented_batch = batch['clean_batch'], batch['augmented_batch']
+        reconstruction = self(augmented_batch)
+
+        clean_batch, means, stds = self.standardize(clean_batch)
+        reconstruction = (reconstruction - means) / stds
+
+        loss = self.loss_fn(reconstruction, clean_batch)
         self.log('train_loss', loss, sync_dist=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
         reconstruction = self(batch)
-        loss = self.loss_fn(reconstruction, batch[:, 0, :])
+
+        batch, means, stds = self.standardize(batch)
+        reconstruction = (reconstruction - means) / stds
+
+        loss = self.loss_fn(reconstruction, batch)
         self.log('val_loss', loss, sync_dist=True)

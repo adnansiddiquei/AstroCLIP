@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import spender
+from astroclip.transforms import Standardize
 
 
 class CNNBlock1d(nn.Module):
@@ -83,6 +84,8 @@ class SpectrumEncoder(nn.Module):
         )
 
     def forward(self, x):
+        x, means, std = Standardize(return_mean_and_std=True)(x)
+
         # Start with the convolutional blocks, x starts at shape (N=1024, C=3, L=7781)
         for block in self.conv_blocks:
             x = block(x)
@@ -99,7 +102,10 @@ class SpectrumEncoder(nn.Module):
         # apply attention, produces tensor of shape (N=1024, C=256)
         x = torch.sum(h * a, dim=2)
 
-        # # run attended features into MLP for final latents
+        # concatenate means and stds to the attended features before passing into MLP
+        x = torch.cat([x, means, std], dim=1)
+
+        # run attended features into MLP for final latents
         x = self.mlp(x)
 
         return x

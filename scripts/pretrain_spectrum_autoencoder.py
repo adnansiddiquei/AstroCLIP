@@ -3,7 +3,6 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from astroclip.transforms import (
     Permute,
-    Standardize,
     ExtractKey,
 )
 from astroclip.augmentations import SpectrumNoising
@@ -45,7 +44,6 @@ def main():
     spectrum_pre_transforms = nn.Sequential(
         ExtractKey('spectrum'),
         Permute([0, 2, 1]),  # Change to [batch_size, channel, spectrum_length]
-        Standardize(),
     )
 
     spectrum_augmentations = nn.Sequential(

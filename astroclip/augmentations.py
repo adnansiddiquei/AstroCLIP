@@ -91,25 +91,28 @@ class SpectrumNoising(nn.Module):
         noise_strength : float
             The strength of the noise to be added. For each element in the observed spectra, the noise added will be
             sampled from a Gaussian distribution with mean 0 and standard deviation equal to the
-            observed_spectra_std_dev, which will then be scaled by this noise_strength.
+            observed_spectra_std_dev * std dev of spectra * noise_strength.
         """
         super(SpectrumNoising, self).__init__()
         self.observed_spectra_std_dev = observed_spectra_std_dev
         self.noise_strength = noise_strength
 
     def forward(self, spectrum):
-        spectrum_channel = spectrum[:, 0, :].view(-1, 1, spectrum.shape[-1])
-        mean_channel = spectrum[:, 1, :].view(-1, 1, spectrum.shape[-1])
-        std_dev_channel = spectrum[:, 2, :].view(-1, 1, spectrum.shape[-1])
+        stds = spectrum.std(dim=-1, keepdims=True).repeat(1, 1, spectrum.shape[-1])
 
-        noise = torch.randn_like(spectrum_channel) * (
-            self.observed_spectra_std_dev.expand_as(spectrum_channel)
+        noise = (
+            torch.randn_like(spectrum)  # create gaussian noise
+            *
+            # then scale noise by observed_spectra_std_dev, this ensures that wavelengths that naturally have more
+            # variance will have more noise added to them
+            self.observed_spectra_std_dev.expand_as(spectrum)
+            *
+            # then scale the noise by the individual std dev of each spectrum so that spectra which naturally have
+            # more variance or larger scales will have more noise added
+            stds
+            * self.noise_strength  # scale noise by noise_strength parameter
         ).to(spectrum.device)
 
-        noisy_spectrum_channel = spectrum_channel + self.noise_strength * noise
+        noisy_spectrum = spectrum + noise
 
-        spectrum = torch.cat(
-            (noisy_spectrum_channel, mean_channel, std_dev_channel), dim=1
-        ).to(spectrum.device)
-
-        return spectrum
+        return noisy_spectrum
