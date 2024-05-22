@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import spender
-from astroclip.transforms import Standardize
 
 
 class CNNBlock1d(nn.Module):
@@ -30,21 +29,21 @@ class SpectrumEncoder(nn.Module):
     def __init__(
         self,
         n_latent=128,
-        input_channels=3,
+        input_channels=1,
         n_channels=(128, 256, 512),
         kernel_sizes=(5, 11, 21),
         strides=(1, 1, 1),
-        n_hidden=(128, 128),
+        n_hidden=(512, 256, 128),
         act=None,
         dropout=0,
     ):
         super(SpectrumEncoder, self).__init__()
         self.n_latent = n_latent
         self.n_channels = n_channels
-        self.input_channels = input_channels
         self.strides = strides
         self.kernel_sizes = kernel_sizes
         self.n_hidden = n_hidden
+        self.input_channels = input_channels
 
         self.conv_blocks = nn.ModuleList()
         last = self.input_channels
@@ -84,9 +83,7 @@ class SpectrumEncoder(nn.Module):
         )
 
     def forward(self, x):
-        x, means, std = Standardize(return_mean_and_std=True)(x)
-
-        # Start with the convolutional blocks, x starts at shape (N=1024, C=3, L=7781)
+        # Start with the convolutional blocks, x starts at shape (N=1024, C=1, L=7781)
         for block in self.conv_blocks:
             x = block(x)
         # x exits the block as a tensor of shape (N=1024, C=512, L=7781)
@@ -102,9 +99,6 @@ class SpectrumEncoder(nn.Module):
         # apply attention, produces tensor of shape (N=1024, C=256)
         x = torch.sum(h * a, dim=2)
 
-        # concatenate means and stds to the attended features before passing into MLP
-        x = torch.cat([x, means, std], dim=1)
-
         # run attended features into MLP for final latents
         x = self.mlp(x)
 
@@ -115,7 +109,7 @@ class SpectrumDecoder(nn.Module):
     def __init__(
         self,
         n_latent=128,
-        n_hidden=(256, 512),
+        n_hidden=(256, 512, 1024),
         spectral_dim=7781,
         act=None,
         dropout=0.0,
@@ -140,4 +134,5 @@ class SpectrumDecoder(nn.Module):
 
     def forward(self, x):
         x = self.mlp(x)
+        x = x.view(x.shape[0], 1, -1)
         return x

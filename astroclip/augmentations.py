@@ -101,17 +101,17 @@ class SpectrumNoising(nn.Module):
         stds = spectrum.std(dim=-1, keepdims=True).repeat(1, 1, spectrum.shape[-1])
 
         noise = (
-            torch.randn_like(spectrum)  # create gaussian noise
+            torch.randn_like(spectrum).to(spectrum.device)  # create gaussian noise
             *
             # then scale noise by observed_spectra_std_dev, this ensures that wavelengths that naturally have more
             # variance will have more noise added to them
-            self.observed_spectra_std_dev.expand_as(spectrum)
+            self.observed_spectra_std_dev.expand_as(spectrum).to(spectrum.device)
             *
             # then scale the noise by the individual std dev of each spectrum so that spectra which naturally have
             # more variance or larger scales will have more noise added
             stds
             * self.noise_strength  # scale noise by noise_strength parameter
-        ).to(spectrum.device)
+        )
 
         noisy_spectrum = spectrum + noise
 

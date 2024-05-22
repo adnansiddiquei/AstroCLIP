@@ -23,15 +23,23 @@ class Reshape(nn.Module):
 
 class Standardize(nn.Module):
     def __init__(self, return_mean_and_std: bool = True):
+        """
+        Standardize a tensor along the last dimension.
+
+        Parameters
+        ----------
+        return_mean_and_std : bool
+            If True, return the mean and standard deviation of the input tensor along the last dimension.
+        """
         super(Standardize, self).__init__()
 
         self.return_mean_and_std = return_mean_and_std
 
-    def forward(self, x):
+    def forward(self, x) -> torch.Tensor | tuple[torch.Tensor]:
         # Compute mean and std along the spectrum length dimension
         eps = 1e-6  # for numerical stability, to avoid division by zero
-        means = x.mean(dim=-1) + eps  # shape (batch_size, n_channels)
-        stds = x.std(dim=-1) + eps  # shape (batch_size, n_channels)
+        means = x.mean(dim=-1, keepdims=True) + eps  # shape (batch_size, n_channels)
+        stds = x.std(dim=-1, keepdims=True) + eps  # shape (batch_size, n_channels)
 
         # Standardize the spectrum
         standardized_x = (x - means) / stds

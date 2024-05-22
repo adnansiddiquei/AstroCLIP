@@ -11,7 +11,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from pytorch_lightning.utilities.types import STEP_OUTPUT
 from astroclip.losses import InfoNCELoss
-from astroclip.transforms import Standardize
 
 
 class ContrastiveBimodalPretraining(L.LightningModule):
@@ -238,47 +237,3 @@ class AutoEncoder(L.LightningModule):
         else:
             batch = self.post_transforms(batch)
             return batch
-
-
-class SpectrumAutoEncoder(AutoEncoder):
-    def __init__(
-        self,
-        encoder: nn.Module,
-        decoder: nn.Module,
-        learning_rate=5e-4,
-        loss_fn=None,
-        pre_transforms=nn.Sequential(),
-        post_transforms=nn.Sequential(),
-        augmentations=nn.Sequential(),
-    ):
-        super().__init__(
-            encoder=encoder,
-            decoder=decoder,
-            learning_rate=learning_rate,
-            loss_fn=loss_fn,
-            pre_transforms=pre_transforms,
-            post_transforms=post_transforms,
-            augmentations=augmentations,
-        )
-
-        self.standardize = Standardize(return_mean_and_std=True)
-
-    def training_step(self, batch, batch_idx):
-        clean_batch, augmented_batch = batch['clean_batch'], batch['augmented_batch']
-        reconstruction = self(augmented_batch)
-
-        clean_batch, means, stds = self.standardize(clean_batch)
-        reconstruction = (reconstruction - means) / stds
-
-        loss = self.loss_fn(reconstruction, clean_batch)
-        self.log('train_loss', loss, sync_dist=True)
-        return loss
-
-    def validation_step(self, batch, batch_idx):
-        reconstruction = self(batch)
-
-        batch, means, stds = self.standardize(batch)
-        reconstruction = (reconstruction - means) / stds
-
-        loss = self.loss_fn(reconstruction, batch)
-        self.log('val_loss', loss, sync_dist=True)

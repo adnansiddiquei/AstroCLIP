@@ -1,14 +1,11 @@
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from astroclip.transforms import (
-    Permute,
-    ExtractKey,
-)
+from astroclip.transforms import Permute, ExtractKey, Standardize
 from astroclip.augmentations import SpectrumNoising
 from astroclip.utils import load_config, download_desi_dataset
 from astroclip.blocks import SpectrumEncoder, SpectrumDecoder
-from astroclip.models import SpectrumAutoEncoder
+from astroclip.models import AutoEncoder
 import os
 import pytorch_lightning as L
 
@@ -50,12 +47,17 @@ def main():
         SpectrumNoising(observed_spectra_std_dev),
     )
 
+    spectrum_post_transforms = nn.Sequential(
+        Standardize(return_mean_and_std=False),
+    )
+
     # define the model
-    model = SpectrumAutoEncoder(
+    model = AutoEncoder(
         encoder=SpectrumEncoder(),  # default parameters are already as required.
         decoder=SpectrumDecoder(),  # as above
         pre_transforms=spectrum_pre_transforms,
         augmentations=spectrum_augmentations,
+        post_transforms=spectrum_post_transforms,
     )
 
     batch_size = config['autoencoder']['batch_size']
