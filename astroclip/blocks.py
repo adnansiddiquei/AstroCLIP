@@ -109,7 +109,7 @@ class SpectrumDecoder(nn.Module):
     def __init__(
         self,
         n_latent=128,
-        n_hidden=(256, 528, 1024),
+        n_hidden=(256, 512),
         spectral_dim=7781,
         act=None,
         dropout=0.0,

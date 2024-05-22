@@ -3,6 +3,10 @@ meta:
 local:
   cache_dir: /Users/adnansiddiquei/DocsLocal/AstroClip/astroclip/cache # Directory containing datasets and pretrained models
   output_dir: /Users/adnansiddiquei/DocsLocal/AstroClip/astroclip/out # Directory to save output files
+  dataloader_workers: 10
+  autoencoder:  # config for autoencoder pretraining
+    batch_size: 32
+    max_epochs: 10
 hpc:
   cache_dir: /todo
   output_dir: /todo

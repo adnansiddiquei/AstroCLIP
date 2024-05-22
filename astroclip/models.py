@@ -192,6 +192,7 @@ class AutoEncoder(L.LightningModule):
         pre_transforms=None,
         post_transforms=None,
         augmentations=None,
+        post_decoder_transforms=None,
     ):
         super().__init__()
         self.encoder = encoder
@@ -201,6 +202,7 @@ class AutoEncoder(L.LightningModule):
         self.pre_transforms = pre_transforms
         self.post_transforms = post_transforms
         self.augmentations = augmentations
+        self.post_decoder_transforms = post_decoder_transforms
 
     def forward(self, x):
         return self.decoder(self.encoder(x))
@@ -222,12 +224,54 @@ class AutoEncoder(L.LightningModule):
 
     @torch.no_grad()
     def on_after_batch_transfer(self, batch: Any, dataloader_idx: int) -> Any:
-        batch = self.pre_transforms(batch)
+        batch = self.pre_transforms(batch) if self.pre_transforms is not None else batch
 
         # Apply augmentations only if training
         if self.trainer.training:
-            batch = self.augmentations(batch)
+            batch = (
+                self.augmentations(batch) if self.augmentations is not None else batch
+            )
 
-        batch = self.post_transforms(batch)
+        batch = (
+            self.post_transforms(batch) if self.post_transforms is not None else batch
+        )
+
+        if torch.isnan(batch).any():
+            raise ValueError('NaNs in batch after transformations')
 
         return batch
+
+
+class SpectrumAutoEncoder(AutoEncoder):
+    def __init__(
+        self,
+        encoder: nn.Module,
+        decoder: nn.Module,
+        learning_rate=5e-4,
+        loss_fn=None,
+        pre_transforms=None,
+        post_transforms=None,
+        augmentations=None,
+        post_decoder_transforms=None,
+    ):
+        super().__init__(
+            encoder=encoder,
+            decoder=decoder,
+            learning_rate=learning_rate,
+            loss_fn=loss_fn,
+            pre_transforms=pre_transforms,
+            post_transforms=post_transforms,
+            augmentations=augmentations,
+            post_decoder_transforms=post_decoder_transforms,
+        )
+
+    def training_step(self, batch, batch_idx):
+        reconstruction = self(batch).squeeze(1)
+        loss = self.loss_fn(reconstruction, batch[:, 0, :])
+        self.log('train_loss', loss, sync_dist=True)
+        return loss
+
+    def validation_step(self, batch, batch_idx):
+        reconstruction = self(batch)
+        loss = self.loss_fn(reconstruction, batch[:, 0, :])
+        self.log('val_loss', loss, sync_dist=True)

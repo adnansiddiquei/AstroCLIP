@@ -104,12 +104,12 @@ class SpectrumNoising(nn.Module):
 
         noise = torch.randn_like(spectrum_channel) * (
             self.observed_spectra_std_dev.expand_as(spectrum_channel)
-        )
+        ).to(spectrum.device)
 
         noisy_spectrum_channel = spectrum_channel + self.noise_strength * noise
 
         spectrum = torch.cat(
             (noisy_spectrum_channel, mean_channel, std_dev_channel), dim=1
-        )
+        ).to(spectrum.device)
 
         return spectrum
