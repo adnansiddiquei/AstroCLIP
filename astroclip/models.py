@@ -1,3 +1,9 @@
+"""
+This file contains trainable models.
+
+All models in this file are PyTorch Lightning modules.
+"""
+
 from typing import Any
 import pytorch_lightning as L
 import torch
@@ -172,5 +178,56 @@ class ContrastiveBimodalPretraining(L.LightningModule):
             batch = self._apply_augmentations(batch)
 
         batch = self._apply_post_transforms(batch)
+
+        return batch
+
+
+class AutoEncoder(L.LightningModule):
+    def __init__(
+        self,
+        encoder: nn.Module,
+        decoder: nn.Module,
+        learning_rate=5e-4,
+        loss_fn=None,
+        pre_transforms=None,
+        post_transforms=None,
+        augmentations=None,
+    ):
+        super().__init__()
+        self.encoder = encoder
+        self.decoder = decoder
+        self.learning_rate = learning_rate
+        self.loss_fn = nn.MSELoss() if loss_fn is None else loss_fn
+        self.pre_transforms = pre_transforms
+        self.post_transforms = post_transforms
+        self.augmentations = augmentations
+
+    def forward(self, x):
+        return self.decoder(self.encoder(x))
+
+    def training_step(self, batch, batch_idx):
+        reconstruction = self(batch)
+        loss = self.loss_fn(reconstruction, batch)
+        self.log('train_loss', loss, sync_dist=True)
+        return loss
+
+    def validation_step(self, batch, batch_idx):
+        reconstruction = self(batch)
+        loss = self.loss_fn(reconstruction, batch)
+        self.log('val_loss', loss, sync_dist=True)
+
+    def configure_optimizers(self):
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
+        return optimizer
+
+    @torch.no_grad()
+    def on_after_batch_transfer(self, batch: Any, dataloader_idx: int) -> Any:
+        batch = self.pre_transforms(batch)
+
+        # Apply augmentations only if training
+        if self.trainer.training:
+            batch = self.augmentations(batch)
+
+        batch = self.post_transforms(batch)
 
         return batch
