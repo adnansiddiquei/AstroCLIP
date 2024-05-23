@@ -8,6 +8,8 @@ from astroclip.blocks import SpectrumEncoder, SpectrumDecoder
 from astroclip.models import AutoEncoder
 import os
 import pytorch_lightning as L
+from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 
 def main():
@@ -17,11 +19,19 @@ def main():
     cache_dir = config['cache_dir']
     output_dir = config['output_dir']
 
+    wandb_logger = WandbLogger(
+        log_model='all', project='AstroCLIP', name='spectrum_autoencoder'
+    )
+
     if not os.path.exists(cache_dir):
         raise FileNotFoundError(f'Cache directory {cache_dir} does not exist.')
 
     if not os.path.exists(output_dir):
         raise FileNotFoundError(f'Cache directory {output_dir} does not exist.')
+
+    model_checkpoints_dir = os.path.join(output_dir, 'autoencoder_checkpoints')
+    if not os.path.exists(model_checkpoints_dir):
+        os.makedirs(model_checkpoints_dir)
 
     # Load the dataset, if the dataset is not already in the cache dir it'll be downloaded
     dataset = download_desi_dataset(cache_dir)
@@ -81,6 +91,15 @@ def main():
         max_epochs=config['autoencoder']['max_epochs'],
         accelerator='auto',
         devices='auto',
+        logger=wandb_logger,
+        callbacks=[
+            ModelCheckpoint(
+                dirpath=model_checkpoints_dir,
+                filename='autoencoder-{epoch:02d}-{val/loss:.2f}',
+                monitor='val/loss',
+                mode='min',
+            )
+        ],
     )
 
     # Train the model

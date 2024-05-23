@@ -209,13 +209,13 @@ class AutoEncoder(L.LightningModule):
         clean_batch, augmented_batch = batch['clean_batch'], batch['augmented_batch']
         reconstruction = self(augmented_batch)
         loss = self.loss_fn(reconstruction, clean_batch)
-        self.log('train_loss', loss, sync_dist=True)
+        self.log('train/loss', loss, sync_dist=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
         reconstruction = self(batch)
         loss = self.loss_fn(reconstruction, batch)
-        self.log('val_loss', loss, sync_dist=True)
+        self.log('val/loss', loss, sync_dist=True)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
