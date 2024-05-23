@@ -257,15 +257,13 @@ def save_fig(output_dir: str, name: str, **kwargs):
     print('Saved figure to: ', filename)
 
 
-def load_config():
+def load_config(header: str):
     cwd = os.path.dirname(os.path.realpath(__file__))
 
     with open(f'{cwd}/../config.yaml', 'r') as file:
         config = yaml.safe_load(file)
 
-    meta = config['meta']
-
-    if meta['local']:
-        return config['local']
-    else:
-        return config['hpc']
+    try:
+        return config[header]
+    except KeyError:
+        raise KeyError(f'Header {header} not found in config file.')

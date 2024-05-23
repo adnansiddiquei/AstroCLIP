@@ -10,11 +10,23 @@ import os
 import pytorch_lightning as L
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
+import argparse
 
 
 def main():
+    # load the config argument to decide which config header to load
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--config',
+        type=str,
+        required=False,
+        help='Which config to use.',
+        default='local',
+    )
+    args = parser.parse_args()
+
     # load the config file
-    config = load_config()
+    config = load_config(args.config)
 
     cache_dir = config['cache_dir']
     output_dir = config['output_dir']
@@ -74,17 +86,19 @@ def main():
     train_dataset = dataset['train']
     val_dataset = dataset['test']
 
+    num_workers = max(os.cpu_count(), 1)
+
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
         shuffle=True,
-        num_workers=config['dataloader_workers'],
+        num_workers=num_workers,
     )
     val_loader = DataLoader(
         val_dataset,
         batch_size=batch_size,
         shuffle=False,
-        num_workers=config['dataloader_workers'],
+        num_workers=num_workers,
     )
 
     trainer = L.Trainer(

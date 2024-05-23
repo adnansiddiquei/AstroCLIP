@@ -12,12 +12,24 @@ from torch.utils.data import DataLoader
 from astroclip.transforms import ExtractKey, Permute, Standardize
 import matplotlib.pyplot as plt
 import numpy as np
+import argparse
 
 
 @torch.no_grad()
 def main():
+    # load the config argument to decide which config header to load
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--config',
+        type=str,
+        required=False,
+        help='Which config to use.',
+        default='local',
+    )
+    args = parser.parse_args()
+
     # load the config file
-    config = load_config()
+    config = load_config(args.config)
 
     cache_dir = config['cache_dir']
     output_dir = config['output_dir']
