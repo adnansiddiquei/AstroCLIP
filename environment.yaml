@@ -3,4 +3,5 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - python=3.12
   - poetry  # all other packages are installed using poetry. See pyproject.toml
