@@ -4,6 +4,7 @@
 **/*/sandbox*.ipynb
 cache/
 out/
+wandb/
 
 ### TeX template
 ## Core latex/pdflatex auxiliary files:
