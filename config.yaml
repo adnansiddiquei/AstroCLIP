@@ -3,12 +3,12 @@ local:  # config for local machine
   cache_dir: /Users/adnansiddiquei/DocsLocal/AstroClip/astroclip/cache
   output_dir: /Users/adnansiddiquei/DocsLocal/AstroClip/astroclip/out
   # config for autoencoder pretraining: scripts/pretrain_spectrum_autoencoder.py
-  autoencoder:
-    batch_size: 32
+  astroclip:
+    batch_size: 256
     max_epochs: 10
 hpc:  # config for running on Cambridge HPC
   cache_dir: /home/as3438/rds/hpc-work/astroclip/cache
   output_dir: /home/as3438/rds/hpc-work/astroclip/out
-  autoencoder:
+  astroclip:
     batch_size: 1024
     max_epochs: 100

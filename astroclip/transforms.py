@@ -21,6 +21,15 @@ class Reshape(nn.Module):
         return x.view(*self.shape)
 
 
+class Squeeze(nn.Module):
+    def __init__(self, dim):
+        super(Squeeze, self).__init__()
+        self.dim = dim
+
+    def forward(self, x: torch.Tensor):
+        return x.squeeze(self.dim)
+
+
 class Standardize(nn.Module):
     def __init__(self, return_mean_and_std: bool = True):
         """
@@ -49,6 +58,34 @@ class Standardize(nn.Module):
             return standardized_x, means, stds
         else:
             return standardized_x
+
+
+class NormaliseSpectrum(nn.Module):
+    def __init__(
+        self, restframe_wavelengths: torch.Tensor, normalisation_range=(5300, 5850)
+    ):
+        """
+        Normalise the spectrum using the median flux over the wavelength range [5300, 5850] Angstroms, in the rest
+        frame.
+        """
+        super(NormaliseSpectrum, self).__init__()
+        self.register_buffer('restframe_wavelengths', restframe_wavelengths)
+        self.normalisation_range = normalisation_range
+
+    def forward(self, x) -> torch.Tensor | tuple[torch.Tensor]:
+        assert x.shape[-1] == self.restframe_wavelengths.shape[-1], (
+            f'Spectrum dimensions must be equal to wavelength '
+            f'dimensions {len(self.restframe_wavelengths)}'
+        )
+
+        mask = (self.restframe_wavelengths >= self.normalisation_range[0]) & (
+            self.restframe_wavelengths <= self.normalisation_range[1]
+        )
+        median_flux = x[:, :, mask].median(dim=-1, keepdim=True)[0]
+
+        normalised_spectrum = x / median_flux
+
+        return normalised_spectrum
 
 
 class ExtractKey(nn.Module):

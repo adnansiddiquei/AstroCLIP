@@ -17,9 +17,9 @@ class ContrastiveBimodalPretraining(L.LightningModule):
     def __init__(
         self,
         encoders: list[nn.Module],
-        pre_transforms: list[nn.Sequential | None] = (None, None),
-        augmentations: list[nn.Sequential | None] = (None, None),
-        post_transforms: list[nn.Sequential | None] = (None, None),
+        pre_transforms: list[nn.Sequential] = (nn.Sequential(), nn.Sequential()),
+        augmentations: list[nn.Sequential] = (nn.Sequential(), nn.Sequential()),
+        post_transforms: list[nn.Sequential] = (nn.Sequential(), nn.Sequential()),
         loss: nn.Module = InfoNCELoss(),
         learning_rate=5e-4,
         modality_names: list[str] = ('modality1', 'modality2'),
@@ -40,8 +40,8 @@ class ContrastiveBimodalPretraining(L.LightningModule):
         pre_transforms : list[nn.Sequential | None]
             List of two pre_transforms, one for each modality. This must be a list of length 2, each element being a
             torch.nn.Sequential object which takes in an input and applies a series of transformations to it.
-            If no post_transforms are required for a modality, the corresponding element in the list should be None.
-            These transformations are applied before the augmentations.
+            If no post_transforms are required for a modality, the corresponding element in the list should be an empty
+            nn.Sequential. These transformations are applied before the augmentations.
         augmentations : list[nn.Sequential | None]
             List of two augmentations, one for each modality. Formatting is the same as for pre_transforms.
         post_transforms : list[nn.Sequential | None]
@@ -109,53 +109,6 @@ class ContrastiveBimodalPretraining(L.LightningModule):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
         return optimizer
 
-    def _apply_augmentations(self, batch) -> dict:
-        mod1, mod2 = batch[self.mod1_name], batch[self.mod2_name]
-
-        mod1 = (
-            self.mod1_augmentations(mod1)
-            if self.mod1_augmentations is not None
-            else mod1
-        )
-
-        mod2 = (
-            self.mod2_augmentations(mod2)
-            if self.mod2_augmentations is not None
-            else mod2
-        )
-
-        return {self.mod1_name: mod1, self.mod2_name: mod2}
-
-    def _apply_post_transforms(self, batch) -> dict:
-        mod1, mod2 = batch[self.mod1_name], batch[self.mod2_name]
-
-        mod1 = (
-            self.mod1_post_transforms(mod1)
-            if self.mod1_post_transforms is not None
-            else mod1
-        )
-
-        mod2 = self.mod2_transforms(mod2) if self.mod2_transforms is not None else mod2
-
-        return {self.mod1_name: mod1, self.mod2_name: mod2}
-
-    def _apply_pre_transforms(self, batch) -> dict:
-        mod1, mod2 = batch[self.mod1_name], batch[self.mod2_name]
-
-        mod1 = (
-            self.mod1_pre_transforms(mod1)
-            if self.mod1_pre_transforms is not None
-            else mod1
-        )
-
-        mod2 = (
-            self.mod2_pre_transforms(mod2)
-            if self.mod2_pre_transforms is not None
-            else mod2
-        )
-
-        return {self.mod1_name: mod1, self.mod2_name: mod2}
-
     @torch.no_grad()
     def on_after_batch_transfer(self, batch: Any, dataloader_idx: int) -> Any:
         # Do some simple checks to ensure that the batch is correctly formatted
@@ -171,15 +124,20 @@ class ContrastiveBimodalPretraining(L.LightningModule):
             self.mod2_name in batch.keys()
         ), f"Batch must contain key '{self.mod1_name}'"
 
-        batch = self._apply_pre_transforms(batch)
+        mod1, mod2 = batch[self.mod1_name], batch[self.mod2_name]
+
+        mod1 = self.mod1_pre_transforms(mod1)
+        mod2 = self.mod2_pre_transforms(mod2)
 
         # Apply augmentations only if training
         if self.trainer.training:
-            batch = self._apply_augmentations(batch)
+            mod1 = self.mod1_augmentations(mod1)
+            mod2 = self.mod2_augmentations(mod2)
 
-        batch = self._apply_post_transforms(batch)
+        mod1 = self.mod1_post_transforms(mod1)
+        mod2 = self.mod2_transforms(mod2)
 
-        return batch
+        return {self.mod1_name: mod1, self.mod2_name: mod2}
 
 
 class AutoEncoder(L.LightningModule):
