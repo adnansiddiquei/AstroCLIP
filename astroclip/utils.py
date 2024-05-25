@@ -13,6 +13,31 @@ from matplotlib.axes import Axes
 import yaml
 
 
+def freeze_all_layers(model: nn.Module):
+    for param in model.parameters():
+        param.requires_grad = False
+
+
+# Function to unfreeze a specific layer by name
+def unfreeze_layer_by_name(model: nn.Module, layer_name: str):
+    # Check if the layer name exists in the model
+    if hasattr(model, layer_name):
+        layer = getattr(model, layer_name)
+        for param in layer.parameters():
+            param.requires_grad = True
+    else:
+        raise ValueError(f"Layer '{layer_name}' not found in the model.")
+
+
+def set_trainable_layers(model: nn.Module, layer_names: list):
+    # Freeze all layers
+    freeze_all_layers(model)
+
+    # Unfreeze the specified layers
+    for layer_name in layer_names:
+        unfreeze_layer_by_name(model, layer_name)
+
+
 def create_1d_gaussian_kernel(sigma: float, kernel_size: int) -> torch.Tensor:
     """
     Create a 1D Gaussian kernel.
