@@ -1,6 +1,5 @@
 import os
 import argparse
-from datetime import datetime
 
 import torch
 import torch.nn as nn
@@ -35,6 +34,14 @@ def main():
         help='Which config to use.',
         default='local',
     )
+    parser.add_argument(
+        '--jobid',
+        type=str,
+        required=False,
+        help='The SLURM job ID, if running on the HPC. Used for logging purposes.',
+        default='00000',
+    )
+
     args = parser.parse_args()
 
     # load the config file
@@ -49,12 +56,10 @@ def main():
     if not os.path.exists(output_dir):
         raise FileNotFoundError(f'Cache directory {output_dir} does not exist.')
 
-    formatted_datetime = datetime.now().strftime('%H:%M%a%d%b')
-
     wandb_logger = WandbLogger(
         log_model='all',
         project='AstroCLIP',
-        name=f'train_astroclip_{formatted_datetime}',
+        name=f'train_astroclip_{args.jobid}',
     )
 
     # Load the dataset, if the dataset is not already in the cache dir it'll be downloaded
@@ -165,7 +170,7 @@ def main():
         callbacks=[
             ModelCheckpoint(
                 dirpath=model_checkpoints_dir,
-                filename='autoencoder-{epoch:02d}-{val/loss:.2f}',
+                filename=f'astroclip-{args.jobid}-{{epoch:02d}}-{{val/loss:.2f}}',
                 monitor='val/loss',
                 mode='min',
             )
