@@ -138,14 +138,11 @@ def main():
         modality_names=['image', 'spectrum'],
     )
 
-    num_workers = max(os.cpu_count(), 1)
-
     # define dataloaders
     train_loader = DataLoader(
         dataset['train'],
         batch_size=config['astroclip']['batch_size'],
         shuffle=True,
-        num_workers=num_workers,
         drop_last=True,
     )
 
@@ -153,7 +150,6 @@ def main():
         dataset['test'],
         batch_size=config['astroclip']['batch_size'],
         shuffle=False,
-        num_workers=num_workers,
         drop_last=True,
     )
 
