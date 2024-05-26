@@ -158,19 +158,25 @@ def main():
     if not os.path.exists(model_checkpoints_dir):
         os.makedirs(model_checkpoints_dir)
 
+    best_model_checkpoint = ModelCheckpoint(
+        dirpath=model_checkpoints_dir,
+        filename=f'astroclip-{args.jobid}-{{epoch:02d}}-{{val/loss:.2f}}',
+        monitor='val/loss',
+        mode='min',
+    )
+
+    last_model_checkpoint = ModelCheckpoint(
+        dirpath=model_checkpoints_dir,
+        filename=f'astroclip-{args.jobid}--{{epoch:02d}}-last',
+        save_last=True,
+    )
+
     trainer = L.Trainer(
         max_epochs=config['astroclip']['max_epochs'],
         accelerator='auto',
         devices='auto',
         logger=wandb_logger,
-        callbacks=[
-            ModelCheckpoint(
-                dirpath=model_checkpoints_dir,
-                filename=f'astroclip-{args.jobid}-{{epoch:02d}}-{{val/loss:.2f}}',
-                monitor='val/loss',
-                mode='min',
-            )
-        ],
+        callbacks=[best_model_checkpoint, last_model_checkpoint],
     )
 
     # Train the model
