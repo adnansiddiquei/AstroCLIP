@@ -1,6 +1,5 @@
 import os
 import argparse
-import wandb
 
 import torch
 import torch.nn as nn
@@ -66,15 +65,10 @@ def main():
     if not os.path.exists(output_dir):
         raise FileNotFoundError(f'Cache directory {output_dir} does not exist.')
 
-    # Initialise the WANDB logger, but ensure it doesn't save artefacts
-    os.environ['WANDB_MODE'] = 'online'
-    os.environ['WANDB_DISABLE_CODE'] = 'true'
-
     wandb_logger = WandbLogger(
         log_model='all',
         project='AstroCLIP',
         name=f'train_astroclip_{args.jobid}',
-        settings=wandb.Settings(_disable_stats=True),
     )
 
     # Load the dataset, if the dataset is not already in the cache dir it'll be downloaded
