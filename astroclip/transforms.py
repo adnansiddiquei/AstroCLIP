@@ -81,9 +81,10 @@ class NormaliseSpectrum(nn.Module):
         mask = (self.restframe_wavelengths >= self.normalisation_range[0]) & (
             self.restframe_wavelengths <= self.normalisation_range[1]
         )
-        median_flux = x[:, :, mask].median(dim=-1, keepdim=True)[0]
 
-        normalised_spectrum = x / median_flux
+        median_flux = x[:, :, mask].nanmedian(dim=-1, keepdim=True)[0]
+
+        normalised_spectrum = x / (median_flux + 1e-6)
 
         return normalised_spectrum
 
