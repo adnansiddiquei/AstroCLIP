@@ -173,14 +173,14 @@ def main():
 
     best_model_checkpoint = ModelCheckpoint(
         dirpath=model_checkpoints_dir,
-        filename=f'astroclip-{{epoch:02d}}-min',
+        filename='astroclip-{epoch:02d}-min',
         monitor='val/loss',
         mode='min',
     )
 
     last_model_checkpoint = ModelCheckpoint(
         dirpath=model_checkpoints_dir,
-        filename=f'astroclip--{{epoch:02d}}-last',
+        filename='astroclip-{epoch}-last',
         save_last=True,
     )
 
