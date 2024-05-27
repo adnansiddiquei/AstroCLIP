@@ -5,6 +5,8 @@
 cache/
 out/
 wandb/
+.fleet/
+slurm_out/
 
 ### TeX template
 ## Core latex/pdflatex auxiliary files:

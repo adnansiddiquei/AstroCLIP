@@ -41,8 +41,17 @@ def main():
         help='The SLURM job ID, if running on the HPC. Used for logging purposes.',
         default='00000',
     )
+    parser.add_argument(
+        '--ckptdir',
+        type=str,
+        required=True,
+        help='The directory to store the checkpoints in, relative to the `output_dir` set in the config.yaml.',
+    )
 
     args = parser.parse_args()
+
+    if args.config == 'hpc':
+        torch.set_float32_matmul_precision('high')
 
     # load the config file
     config = load_config(args.config)
@@ -116,7 +125,7 @@ def main():
     # Load the pre-trained spectrum encoder
     spectrum_encoder = SpectrumEncoderSpender(
         state_dict=torch.load(f'{cache_dir}/spender.desi-edr.encoder.pth'),
-        mlp=nn.Sequential(nn.Linear(256, 128)),
+        mlp=nn.Sequential(nn.Linear(256, 128), nn.ReLU(), nn.Linear(128, 128)),
     )
 
     # set only the final MLP layers to be trainable
@@ -139,11 +148,14 @@ def main():
     )
 
     # define dataloaders
+    num_workers = config['astroclip']['num_workers']
+
     train_loader = DataLoader(
         dataset['train'],
         batch_size=config['astroclip']['batch_size'],
         shuffle=True,
         drop_last=True,
+        num_workers=num_workers,
     )
 
     val_loader = DataLoader(
@@ -151,23 +163,24 @@ def main():
         batch_size=config['astroclip']['batch_size'],
         shuffle=False,
         drop_last=True,
+        num_workers=num_workers,
     )
 
     # train the model
-    model_checkpoints_dir = os.path.join(output_dir, 'astroclip_checkpoints')
+    model_checkpoints_dir = os.path.join(output_dir, args.ckptdir)
     if not os.path.exists(model_checkpoints_dir):
         os.makedirs(model_checkpoints_dir)
 
     best_model_checkpoint = ModelCheckpoint(
         dirpath=model_checkpoints_dir,
-        filename=f'astroclip-{args.jobid}-{{epoch:02d}}-{{val/loss:.2f}}',
+        filename=f'astroclip-{{epoch:02d}}-min',
         monitor='val/loss',
         mode='min',
     )
 
     last_model_checkpoint = ModelCheckpoint(
         dirpath=model_checkpoints_dir,
-        filename=f'astroclip-{args.jobid}--{{epoch:02d}}-last',
+        filename=f'astroclip--{{epoch:02d}}-last',
         save_last=True,
     )
 

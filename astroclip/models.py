@@ -98,12 +98,12 @@ class ContrastiveBimodalPretraining(L.LightningModule):
 
     def training_step(self, batch, batch_idx) -> STEP_OUTPUT:
         loss = self._compute_loss(batch, batch_idx)
-        self.log('train_loss', loss, sync_dist=True)
+        self.log('train/loss', loss, sync_dist=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
         loss = self._compute_loss(batch, batch_idx)
-        self.log('val_loss', loss, sync_dist=True)
+        self.log('val/loss', loss, sync_dist=True)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
@@ -136,6 +136,14 @@ class ContrastiveBimodalPretraining(L.LightningModule):
 
         mod1 = self.mod1_post_transforms(mod1)
         mod2 = self.mod2_transforms(mod2)
+
+        assert not torch.isnan(
+            mod1
+        ).any(), f'{self.mod1_name} contains NaNs after transformations and augmentations have been applied.'
+
+        assert not torch.isnan(
+            mod2
+        ).any(), f'{self.mod2_name} contains NaNs after transformations and augmentations have been applied.'
 
         return {self.mod1_name: mod1, self.mod2_name: mod2}
 
