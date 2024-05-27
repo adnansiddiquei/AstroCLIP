@@ -78,7 +78,7 @@ class ContrastiveBimodalPretraining(L.LightningModule):
         self.mod1_encoder, self.mod2_encoder = encoders
         self.mod1_pre_transforms, self.mod2_pre_transforms = pre_transforms
         self.mod1_augmentations, self.mod2_augmentations = augmentations
-        self.mod1_post_transforms, self.mod2_transforms = post_transforms
+        self.mod1_post_transforms, self.mod2_post_transforms = post_transforms
         self.mod1_name, self.mod2_name = modality_names
 
         self.loss_func = loss
@@ -135,7 +135,7 @@ class ContrastiveBimodalPretraining(L.LightningModule):
             mod2 = self.mod2_augmentations(mod2)
 
         mod1 = self.mod1_post_transforms(mod1)
-        mod2 = self.mod2_transforms(mod2)
+        mod2 = self.mod2_post_transforms(mod2)
 
         assert not torch.isnan(
             mod1

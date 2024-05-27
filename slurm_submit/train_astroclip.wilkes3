@@ -92,9 +92,7 @@ echo $(poetry env list)
 echo $(python --version)
 echo $(python3.12 --version)
 
-export WANDB_DATA_DIR=/home/as3438/rds/hpc-work/wandb
-export WANDB_ARTIFACT_LOCATION=/home/as3438/rds/hpc-work/wandb
-export WANDB_CONFIG_DIR=/home/as3438/rds/hpc-work/wandb
+export WANDB_DIR=/home/as3438/rds/hpc-work/wandb
 
 JOBID=$SLURM_JOB_ID
 

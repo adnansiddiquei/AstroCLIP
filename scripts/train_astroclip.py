@@ -53,6 +53,9 @@ def main():
     if args.config == 'hpc':
         torch.set_float32_matmul_precision('high')
 
+        print(f"CUDA available: {torch.cuda.is_available()}")
+        print(f"Number of GPUs: {torch.cuda.device_count()}")
+
     # load the config file
     config = load_config(args.config)
 
