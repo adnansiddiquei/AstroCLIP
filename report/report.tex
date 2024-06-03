@@ -1,0 +1,63 @@
+%! Author = adnansiddiquei
+%! Date = 03/06/2024
+
+% Preamble
+\documentclass{article} % For LaTeX2e
+
+
+% Packages
+\usepackage{iclr2024_conference,times}
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, pdfborder={0 0 0}]{hyperref}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{wrapfig}
+\usepackage{lipsum}
+\usepackage{enumitem}
+% \usepackage{tabularx}
+
+\usepackage{xspace}
+
+\usepackage{subcaption}
+\usepackage{amsmath}
+
+\title{Reproducing AstroCLIP: An Evaluation on Cross-Modal Pre-Training for Astronomical Foundation Models}
+
+\newcommand*\samethanks[1][\value{footnote}]{\footnotemark[#1]}
+\newcommand{\mysep}{\hspace{18pt}}
+
+\author{Adnan Siddiquei\thanks{Contact: \texttt{as3438@cam.ac.uk}}$\;^{\:}$
+   \vspace{15pt}
+   \AND
+    \textnormal{University of Cambridge} \vspace{10pt}
+   \AND
+%   \textnormal{$^{1\,}$University of Cambridge}
+ \vspace{10pt}
+}
+
+\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+
+% Document
+\begin{document}
+
+    \maketitle
+
+    \begin{abstract}
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eget urna laoreet, elementum tellus nec, dapibus dui.
+    Mauris venenatis velit sed lorem gravida, non maximus mi congue. Nunc a imperdiet metus. Nunc efficitur arcu sit amet nibh
+    condimentum elementum. Sed consectetur eros ut odio laoreet porttitor. In pharetra faucibus risus, in sagittis ligula
+    tincidunt eu. Proin aliquam in lacus vitae efficitur. Donec dictum malesuada pharetra. Mauris sit amet mauris quam.
+    Donec non dapibus est.
+    \end{abstract}
+
+    \section{Introduction}
+    In this paper, we reproduce the results of AstroCLIP~\citep{astroclip}
+
+    \nocite{*}
+    \bibliography{biblio}
+    \bibliographystyle{iclr2024_conference}
+    \clearpage
+\end{document}
