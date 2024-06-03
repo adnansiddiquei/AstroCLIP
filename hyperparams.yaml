@@ -1,0 +1,72 @@
+h01:
+  batch_size: 512
+  max_epochs: 75
+  lr: 0.0005
+  weight_decay: 0.0001
+  unfreeze_all: False
+h02:
+  batch_size: 512
+  max_epochs: 75
+  lr: 0.0005
+  weight_decay: 0.001
+  unfreeze_all: False
+h03:
+  batch_size: 512
+  max_epochs: 75
+  lr: 0.0005
+  weight_decay: 0.01
+  unfreeze_all: False
+h04:
+  batch_size: 512
+  max_epochs: 75
+  lr: 0.0005
+  weight_decay: 0.1
+  unfreeze_all: False
+h05:
+  batch_size: 512
+  max_epochs: 200
+  lr: 0.0005
+  weight_decay: 0.0001
+  unfreeze_all: False
+h06:
+  batch_size: 512
+  max_epochs: 200
+  lr: 0.0005
+  weight_decay: 0.001
+  unfreeze_all: False
+h07:
+  batch_size: 512
+  max_epochs: 200
+  lr: 0.0005
+  weight_decay: 0.01
+  unfreeze_all: False
+h08:
+  batch_size: 512
+  max_epochs: 200
+  lr: 0.0005
+  weight_decay: 0.0001
+  unfreeze_all: True
+h09:
+  batch_size: 512
+  max_epochs: 200
+  lr: 0.0005
+  weight_decay: 0.001
+  unfreeze_all: True
+h10:
+  batch_size: 512
+  max_epochs: 200
+  lr: 0.0005
+  unfreeze_all: True
+
+l01:
+  batch_size: 256
+  max_epochs: 50
+  lr: 0.0005
+  weight_decay: 0.001
+  unfreeze_all: False
+l02:
+  batch_size: 256
+  max_epochs: 200
+  lr: 0.0005
+  weight_decay: 0.001
+  unfreeze_all: True

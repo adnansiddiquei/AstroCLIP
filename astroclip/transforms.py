@@ -30,6 +30,43 @@ class Squeeze(nn.Module):
         return x.squeeze(self.dim)
 
 
+class DropInvalidSpectra(nn.Module):
+    def __init__(self):
+        super(DropInvalidSpectra, self).__init__()
+
+    def forward(self, batch):
+        spectrum = batch['spectrum']
+        mask = (spectrum.abs().sum(dim=1) != 0).squeeze()
+
+        batch['spectrum'] = spectrum[mask]
+        batch['image'] = batch['image'][mask]
+        batch['targetid'] = batch['targetid'][mask]
+        batch['redshift'] = batch['redshift'][mask]
+
+        return batch
+
+
+class DropOnRedshift(nn.Module):
+    def __init__(self, z_min=0.0, z_max=0.8):
+        super(DropOnRedshift, self).__init__()
+        self.z_min = z_min
+        self.z_max = z_max
+
+    def forward(self, batch):
+        redshift = batch['redshift']
+
+        # Create a mask for redshifts within the desired range
+        mask = (redshift <= self.z_max) & (redshift >= self.z_min)
+
+        # Apply mask to filter the batch along the batch dimension
+        batch['image'] = batch['image'][mask]
+        batch['spectrum'] = batch['spectrum'][mask]
+        batch['targetid'] = batch['targetid'][mask]
+        batch['redshift'] = batch['redshift'][mask]
+
+        return batch
+
+
 class Standardize(nn.Module):
     def __init__(self, return_mean_and_std: bool = True):
         """
@@ -96,6 +133,50 @@ class ExtractKey(nn.Module):
 
     def forward(self, x):
         return x[self.key]
+
+
+class ToRGB(nn.Module):
+    def __init__(self, scales=None, m=0.03, Q=20, bands=['g', 'r', 'z']):
+        """
+        Takes in image of shape (N, C, L, W) converts from native telescope image scaling to RGB.
+        Taken directly from Stein, et al, (2021).
+        """
+        super(ToRGB, self).__init__()
+        rgb_scales = {
+            'u': (2, 1.5),
+            'g': (2, 6.0),
+            'r': (1, 3.4),
+            'i': (0, 1.0),
+            'z': (0, 2.2),
+        }
+        if scales is not None:
+            rgb_scales.update(scales)
+
+        self.rgb_scales = rgb_scales
+        self.m = m
+        self.Q = Q
+        self.bands = bands
+        self.axes, self.scales = zip(*[rgb_scales[bands[i]] for i in range(len(bands))])
+
+        # rearrange scales to correspond to image channels after swapping
+        self.scales = torch.tensor([self.scales[i] for i in self.axes])
+
+    def forward(self, image):
+        self.scales = self.scales.to(image.device)
+        image = image.permute(0, 2, 3, 1)
+
+        I = torch.sum(torch.clamp(image * self.scales + self.m, min=0), dim=-1) / len(
+            self.bands
+        )
+
+        fI = torch.arcsinh(self.Q * I) / torch.sqrt(torch.tensor(self.Q, dtype=I.dtype))
+        I = I + (I == 0).float() * 1e-6
+
+        image = image * (self.scales + self.m * (fI / I).unsqueeze(-1)).to(image.dtype)
+
+        image = torch.clamp(image, 0, 1)
+
+        return image.permute(0, 3, 1, 2)
 
 
 class InterpolationImputeNans1d(nn.Module):

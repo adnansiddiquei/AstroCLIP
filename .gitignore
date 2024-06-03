@@ -2,11 +2,13 @@
 
 # Added by Adnan
 **/*/sandbox*.ipynb
+**/*/sandbox*.png
 cache/
 out/
 wandb/
 .fleet/
 slurm_out/
+lightning_logs/
 
 ### TeX template
 ## Core latex/pdflatex auxiliary files:

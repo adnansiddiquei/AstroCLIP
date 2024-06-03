@@ -282,13 +282,30 @@ def save_fig(output_dir: str, name: str, **kwargs):
     print('Saved figure to: ', filename)
 
 
-def load_config(header: str):
+def load_config(config_header: str, hparams_header: str):
     cwd = os.path.dirname(os.path.realpath(__file__))
 
     with open(f'{cwd}/../config.yaml', 'r') as file:
         config = yaml.safe_load(file)
 
+    with open(f'{cwd}/../hyperparams.yaml', 'r') as file:
+        hparams = yaml.safe_load(file)
+
     try:
-        return config[header]
+        config_header = config[config_header]
+        cache_dir = config_header['cache_dir']
+        output_dir = config_header['output_dir']
+
+        if not os.path.exists(cache_dir):
+            raise FileNotFoundError(f'Cache directory {cache_dir} does not exist.')
+
+        if not os.path.exists(output_dir):
+            raise FileNotFoundError(f'Cache directory {output_dir} does not exist.')
+
+        return config_header, hparams[hparams_header]
     except KeyError:
-        raise KeyError(f'Header {header} not found in config file.')
+        raise KeyError('Error whilst loading config file and hyperparameters.')
+
+
+def remove_empty_keys(data: dict) -> dict:
+    return {k: v for k, v in data.items() if v is not None}

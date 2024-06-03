@@ -14,7 +14,7 @@
 #
 #
 # def main():
-#     # load the config argument to decide which config header to load
+#     # load the config argument to decide which config config_header to load
 #     parser = argparse.ArgumentParser()
 #     parser.add_argument(
 #         '--config',

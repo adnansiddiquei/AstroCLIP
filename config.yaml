@@ -4,13 +4,15 @@ local:  # config for local machine
   output_dir: /Users/adnansiddiquei/DocsLocal/AstroClip/astroclip/out
   # config for autoencoder pretraining: scripts/pretrain_spectrum_autoencoder.py
   astroclip:
-    batch_size: 256
-    max_epochs: 10
     num_workers: 5
+    # this points to the pretrained spectrum encoder model, which is the encoder part of the spender DESI EDR model
+    pretrained_spectrum_encoder: /Users/adnansiddiquei/DocsLocal/AstroClip/astroclip/cache/spender.desi-edr.encoder.pth
+    # this points to the pretrained image embedder
+    pretrained_image_encoder: /Users/adnansiddiquei/DocsLocal/AstroClip/astroclip/cache/resnet50.ckpt
 hpc:  # config for running on Cambridge HPC
   cache_dir: /home/as3438/rds/hpc-work/astroclip/cache
   output_dir: /home/as3438/rds/hpc-work/astroclip/out
   astroclip:
-    batch_size: 1024
-    max_epochs: 200
     num_workers: 32
+    pretrained_spectrum_encoder: /home/as3438/rds/hpc-work/astroclip/cache/spender.desi-edr.encoder.pth
+    pretrained_image_encoder: /home/as3438/rds/hpc-work/astroclip/cache/resnet50.ckpt
