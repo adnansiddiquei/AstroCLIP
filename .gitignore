@@ -9,6 +9,7 @@ wandb/
 .fleet/
 slurm_out/
 lightning_logs/
+**/*/.DS_Store
 
 ### TeX template
 ## Core latex/pdflatex auxiliary files:

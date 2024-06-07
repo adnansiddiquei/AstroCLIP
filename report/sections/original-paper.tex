@@ -1,0 +1,37 @@
+%! Author = adnansiddiquei
+%! Date = 04/06/2024
+
+\section{Original AstroCLIP Paper}\label{sec:original-paper}
+The original AstroCLIP paper~\citep{astroclip} whose results we reproduce in this paper, implemented a multi-modal contrastive
+learning approach to embed galaxy spectra and galaxy images into a shared latent space.
+This implementation utilised a transformer-based spectrum embedder and a convolutional image embedder to project the two
+modalities into a shared 128-dimensional embedding, and further showed that the learned embeddings were well-aligned
+with the physical properties of the galaxies.
+The authors demonstrated that the learned embeddings could be used to make relatively accurate zero-shot predictions on
+redshift and stellar mass of galaxies using k-NN regression.
+For ease of comparison, we provide a brief overview of the implementation details of the original AstroCLIP paper.
+
+\paragraph{Data} The galaxy image data used by the authors~\citep{astroclip} was curated from the DESI Legacy Survey Data
+Release 9~\citep{desilegacy2018}, as prepared by~\cite{stein2021}.
+This was cross-referenced to the DESI Early Data Release~\citep{desiearly2023} to obtain the corresponding galaxy spectra,
+and cross-referenced to the PRObabilistic Value-Added Bright Galaxy Survey (PROVABGS) Catalog~\citep{provabgs2021}
+to obtain the redshift and stellar mass labels for the galaxies - yielding a total of 197,976 galaxy spectra and image pairs.
+
+\paragraph{Spectrum Embedder} The authors pre-trained a transformer-based spectrum embedder using a self-supervised mask
+filling task on the galaxy spectra.
+All the weights of this embedder were then frozen and a single cross-attention layer followed by an MLP was added to project
+the spectrum into a 128-dimensional embedding, yielding a total of 362k trainable parameters.
+
+\paragraph{Image Embedder} The pre-trained convolutional image embedder was acquired from~\cite{stein2021}.
+This image embedder had a ResNet-50 architecture and was trained with a self-supervised method on a sample of 3.5 million
+galaxy images (augmented in a variety of ways) from the DESI Legacy Survey~\citep{desilegacy2018} using the MoCo v2
+framework~\citep{moco2020, mocov22020} in order to embed the images into a 128-dimensional space.
+This image embedder had the convolutional layers frozen and yielding a total of 4.5M trainable parameters in the final
+dense layers of the model.
+
+\paragraph{Training} The authors used a contrastive learning approach to learn a shared embedding space for the images
+and spectra.
+A variety of augmentations were applied to the images and spectra and the respective embedders were trained using an
+InfoNCE loss~\citep{infonce2020} over 15,000 iterations with a batch size of 512.
+
+\paragraph{Key Results}
