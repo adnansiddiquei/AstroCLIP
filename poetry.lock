@@ -4123,13 +4123,13 @@ files = [
 
 [[package]]
 name = "spender"
-version = "0.2.5"
+version = "0.2.6"
 description = "Spectrum encoder and decoder"
 optional = false
 python-versions = "*"
 files = [
-    {file = "spender-0.2.5-py2.py3-none-any.whl", hash = "sha256:43c0f7ce06b217f053c0b30cd7649d91e3f49ca396a0517b0af1a602770087de"},
-    {file = "spender-0.2.5.tar.gz", hash = "sha256:cf29a594d0a37290a374ac934e5cefbf87895b42153c344460c3fff42a69a910"},
+    {file = "spender-0.2.6-py2.py3-none-any.whl", hash = "sha256:1af26863cfb6378794b90e498da89fc705d2bda13dfe27af6e84a6c314520a56"},
+    {file = "spender-0.2.6.tar.gz", hash = "sha256:6581bdeaa4a9672727c7f181cf639c117899c87fd54dd2929482aed5a80d32ef"},
 ]
 
 [package.dependencies]
@@ -4894,4 +4894,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "a6581b3dd1f9cea1bf2dc45244ddcc5dc54e9f9b66b13519ba3d8bb4fd63d025"
+content-hash = "b1a1824f9b50676ed7575a31583b02d59bb5d6c4bc5995ebbe0be814b643d8b9"

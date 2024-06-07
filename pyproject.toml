@@ -16,7 +16,7 @@ numpy = "^1.26"
 h5py = "^3.7"  # legacy_survey.py uses this to load the data
 datasets = "^2.19"  # Huggingface datasets, as above, required by legacy_survey.py
 matplotlib = "*"
-spender = "0.2.5"  # will install all the dependencies for spender, allowing us to use torch.hub to load pretrained model
+spender = "0.2.6"  # will install all the dependencies for spender, allowing us to use torch.hub to load pretrained model
 # torchinterp1d is required by spender
 torchinterp1d = {git = "https://github.com/aliutkus/torchinterp1d", rev = "ffdbcedb99a3a257d4130254f64ad0e6610adfda"}
 PyYAML = "*" # required to import the config.yaml file
