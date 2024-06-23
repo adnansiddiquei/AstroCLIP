@@ -1,57 +1,43 @@
 %! Author = adnansiddiquei
-%! Date = 03/06/2024
+%! Date = 05/03/2024
 
 % Preamble
-\documentclass{article} % For LaTeX2e
-
+\documentclass[a4paper,11pt]{article}
+\pdfoutput=1
 
 % Packages
-\usepackage{iclr2024_conference,times}
-\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, pdfborder={0 0 0}]{hyperref}
+%\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue, pdfborder={0 0 0}]{hyperref}
 \usepackage{url}
-\usepackage{graphicx}
-\usepackage{booktabs}
-\usepackage{multirow}
-\usepackage{caption}
-\usepackage{xcolor}
-\usepackage{wrapfig}
-\usepackage{lipsum}
-\usepackage{enumitem}
-% \usepackage{tabularx}
-
-\usepackage{xspace}
-
+\usepackage{jcappub}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage{roboto}
 \usepackage{subcaption}
-\usepackage{amsmath}
+\usepackage{blindtext}
+\usepackage{seqsplit}
+\usepackage[nottoc]{tocbibind}
 
-\title{Reproducing AstroCLIP: An Evaluation on Cross-Modal Pre-Training for Astronomical Foundation Models}
+%\newcommand{\inlinecode}[1]{\lstinline{#1}}
+%\newcommand{\inlinecode}[1]{\texttt{#1}}
+\newcommand{\inlinecode}[1]{\texttt{\seqsplit{#1}}}
+\lstset{basicstyle=\fontfamily{pcr}\selectfont}
 
-\newcommand*\samethanks[1][\value{footnote}]{\footnotemark[#1]}
-\newcommand{\mysep}{\hspace{18pt}}
 
-\author{Adnan Siddiquei\thanks{Contact: \texttt{as3438@cam.ac.uk}}$\;^{\:}$
-   \vspace{15pt}
-   \AND
-    \textnormal{University of Cambridge} \vspace{10pt}
-   \AND
-%   \textnormal{$^{1\,}$University of Cambridge}
- \vspace{10pt}
-}
+\title{\boldmath Reproducing AstroCLIP: An Evaluation on Cross-Modal Pre-Training for Astronomical Foundation Models}
 
-\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+% %simple case: 2 authors, same institution
+\author{Adnan Siddiquei}
+\affiliation{University of Cambridge}
 
-% Document
+% e-mail addresses: one for each author, in the same order as the authors
+\emailAdd{as3438@cam.ac.uk}
+\note{Word Count: XXXXX (including figure captions and appendix).}
+
+
 \begin{document}
-
     \maketitle
+    \flushbottom
 
-    \begin{abstract}
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eget urna laoreet, elementum tellus nec, dapibus dui.
-    Mauris venenatis velit sed lorem gravida, non maximus mi congue. Nunc a imperdiet metus. Nunc efficitur arcu sit amet nibh
-    condimentum elementum. Sed consectetur eros ut odio laoreet porttitor. In pharetra faucibus risus, in sagittis ligula
-    tincidunt eu. Proin aliquam in lacus vitae efficitur. Donec dictum malesuada pharetra. Mauris sit amet mauris quam.
-    Donec non dapibus est.
-    \end{abstract}
 
     \input{sections/introduction}
     \input{sections/original-paper}
@@ -59,8 +45,15 @@
     \input{sections/method}
     \input{sections/results}
 
-    \nocite{*}
-    \bibliography{main}
-    \bibliographystyle{iclr2024_conference}
     \clearpage
+
+%    \nocite{*}
+    \bibliographystyle{apalike}
+    \bibliography{main}
+    \clearpage
+
+    %\appendix
+
+    %\section{Appendix A}\label{app:app-a}
+    %Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eget urna laoreet, elementum tellus nec, dapibus dui.
 \end{document}
