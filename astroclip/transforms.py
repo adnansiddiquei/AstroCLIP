@@ -126,22 +126,18 @@ class NormaliseSpectrum(nn.Module):
         return normalised_spectrum
 
 
-class MedianNormaliseSpectrum(nn.Module):
-    def __init__(
-        self,
-    ):
-        """
-        Normalise the spectrum using the median flux over the wavelength range [5300, 5850] Angstroms, in the rest
-        frame.
-        """
-        super(MedianNormaliseSpectrum, self).__init__()
+class MeanNormalise(nn.Module):
+    def __init__(self, dims):
+        super(MeanNormalise, self).__init__()
+        self.dims = dims
 
     def forward(self, x) -> torch.Tensor | tuple[torch.Tensor]:
-        median_flux = x.median(dim=-1, keepdim=True)[0]
+        mean = x.mean(dim=self.dims, keepdim=True)
+        std = x.std(dim=self.dims, keepdim=True)
 
-        normalised_spectrum = x / (median_flux + 1e-6)
+        normalised = (x - mean) / std
 
-        return normalised_spectrum
+        return normalised
 
 
 class ExtractKey(nn.Module):

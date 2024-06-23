@@ -24,8 +24,7 @@ from astroclip.transforms import (
     ExtractKey,
     DropInvalidSpectra,
     DropOnRedshift,
-    ToRGB,
-    MedianNormaliseSpectrum,
+    MeanNormalise,
 )
 from astroclip.augmentations import Roll, AddGaussianNoise, SpectrumNoising
 
@@ -90,19 +89,22 @@ def get_image_operations():
         ExtractKey('image'),
         Permute([0, 3, 1, 2]),  # Change to [batch_size, channel, npix, npix]
         Roll(),
-        AddGaussianNoise(0, 0.03),
+        # AddGaussianNoise(0, 0.03),
         RandomRotation(45, interpolation=InterpolationMode.BILINEAR),
         RandomHorizontalFlip(),
         RandomVerticalFlip(),
         CenterCrop(96),
-        ToRGB(),
+        MeanNormalise(dims=[-1, -2]),  # Normalise the image to mean 0, std 1
+        AddGaussianNoise(0, 0.03),
+        # ToRGB(),
     )
 
     val = nn.Sequential(
         ExtractKey('image'),
         Permute([0, 3, 1, 2]),  # Change to [batch_size, channel, npix, npix]
         CenterCrop(96),
-        ToRGB(),
+        MeanNormalise(dims=[-1, -2]),  # Normalise the image to mean 0, std 1
+        # ToRGB(),
     )
 
     return train, val
@@ -129,7 +131,7 @@ def get_spectrum_operations(output_dir: str):
         ExtractKey('spectrum'),
         Permute([0, 2, 1]),  # Change to [batch_size, channel, spectrum_length]
         # NormaliseSpectrum(restframe_wavelengths, (5300, 5850)),
-        MedianNormaliseSpectrum(),
+        MeanNormalise(dims=-1),
         SpectrumNoising(observed_spectra_std_dev, 0.3),
         Squeeze(
             1
@@ -140,7 +142,7 @@ def get_spectrum_operations(output_dir: str):
         ExtractKey('spectrum'),
         Permute([0, 2, 1]),  # Change to [batch_size, channel, spectrum_length]
         # NormaliseSpectrum(restframe_wavelengths, (5300, 5850)),
-        MedianNormaliseSpectrum(),
+        MeanNormalise(dims=-1),
         Squeeze(
             1
         ),  # Change to [batch_size, spectrum_length], this is how the spender model expects it
