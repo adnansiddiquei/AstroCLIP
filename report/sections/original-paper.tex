@@ -2,14 +2,15 @@
 %! Date = 04/06/2024
 
 \section{Original AstroCLIP Paper}\label{sec:original-paper}
-The original AstroCLIP paper~\cite{astroclip} results we reproduce in this paper, implemented a multi-modal contrastive
+The original AstroCLIP paper~\cite{astroclip} whose results we reproduce in this paper, implemented a multi-modal contrastive
 learning approach to embed galaxy spectra and galaxy images into a shared latent space.
 This implementation utilised a transformer-based spectrum embedder and a convolutional image embedder to project the two
 modalities into a shared 128-dimensional embedding, and further showed that the learned embeddings were well-aligned
 with the physical properties of the galaxies.
 The authors demonstrated that the learned embeddings could be used to make relatively accurate zero-shot predictions on
 redshift and stellar mass of galaxies using k-NN regression.
-For ease of comparison, we provide a brief overview of the implementation details of the original AstroCLIP paper.
+For ease of comparison, we provide a brief overview of the implementation details and key results of the original
+AstroCLIP paper.
 
 \paragraph{Data} The galaxy image data used by the authors~\citep{astroclip} was curated from the DESI Legacy Survey Data
 Release 9~\citep{desilegacy2018}, as prepared by~\cite{stein2021}.

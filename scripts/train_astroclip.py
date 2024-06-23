@@ -1,4 +1,6 @@
 import os
+
+import numpy as np
 import torch
 
 from pytorch_lightning.loggers import WandbLogger
@@ -24,6 +26,10 @@ from astroclip.training_utils import (
 
 
 def main():
+    # set the seeds for reproducibility
+    np.random.seed(42)
+    torch.manual_seed(42)
+
     args = parse_args()
 
     if args.config == 'hpc':
@@ -91,6 +97,7 @@ def main():
     )
 
     # These are passed into the L.Trainer class, but whether they are passed in are optional based on the flags
+    # that were passed in when this python script was called
     trainer_kwargs = remove_empty_keys(
         {
             # log to WandB if the flag is set, otherwise, don't log to WanDB
