@@ -20,12 +20,12 @@ from astroclip.utils import (
 )
 from astroclip.transforms import (
     Permute,
-    NormaliseSpectrum,
     Squeeze,
     ExtractKey,
     DropInvalidSpectra,
     DropOnRedshift,
     ToRGB,
+    MedianNormaliseSpectrum,
 )
 from astroclip.augmentations import Roll, AddGaussianNoise, SpectrumNoising
 
@@ -120,15 +120,16 @@ def get_spectrum_operations(output_dir: str):
             f'Please run compute_observed_spectra_std_dev.py first.'
         )
 
-    lambda_min = 3600.0  # Minimum wavelength in Angstroms, in observed spectra
-    lambda_max = 9824.0
-    z_max = 0.8
-    restframe_wavelengths = torch.linspace(lambda_min / (1 + z_max), lambda_max, 7781)
+    # lambda_min = 3600.0  # Minimum wavelength in Angstroms, in observed spectra
+    # lambda_max = 9824.0
+    # z_max = 0.8
+    # restframe_wavelengths = torch.linspace(lambda_min / (1 + z_max), lambda_max, 7781)
 
     train = nn.Sequential(
         ExtractKey('spectrum'),
         Permute([0, 2, 1]),  # Change to [batch_size, channel, spectrum_length]
-        NormaliseSpectrum(restframe_wavelengths, (5300, 5850)),
+        # NormaliseSpectrum(restframe_wavelengths, (5300, 5850)),
+        MedianNormaliseSpectrum(),
         SpectrumNoising(observed_spectra_std_dev, 0.3),
         Squeeze(
             1
@@ -138,7 +139,8 @@ def get_spectrum_operations(output_dir: str):
     val = nn.Sequential(
         ExtractKey('spectrum'),
         Permute([0, 2, 1]),  # Change to [batch_size, channel, spectrum_length]
-        NormaliseSpectrum(restframe_wavelengths, (5300, 5850)),
+        # NormaliseSpectrum(restframe_wavelengths, (5300, 5850)),
+        MedianNormaliseSpectrum(),
         Squeeze(
             1
         ),  # Change to [batch_size, spectrum_length], this is how the spender model expects it
