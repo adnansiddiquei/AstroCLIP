@@ -5,15 +5,5 @@ h01:
   weight_decay: 0.0001
   unfreeze_all: True
 
-l01:
+generate_embeddings:
   batch_size: 256
-  max_epochs: 50
-  lr: 0.0005
-  weight_decay: 0.001
-  unfreeze_all: False
-l02:
-  batch_size: 256
-  max_epochs: 200
-  lr: 0.0005
-  weight_decay: 0.001
-  unfreeze_all: True

@@ -282,7 +282,7 @@ def save_fig(output_dir: str, name: str, **kwargs):
     print('Saved figure to: ', filename)
 
 
-def load_config(config_header: str, hparams_header: str):
+def load_config(config_header: str, hparams_header: str = None):
     cwd = os.path.dirname(os.path.realpath(__file__))
 
     with open(f'{cwd}/../config.yaml', 'r') as file:
@@ -302,7 +302,10 @@ def load_config(config_header: str, hparams_header: str):
         if not os.path.exists(output_dir):
             raise FileNotFoundError(f'Cache directory {output_dir} does not exist.')
 
-        return config_header, hparams[hparams_header]
+        if hparams_header is None:
+            return config_header
+        else:
+            return config_header, hparams[hparams_header]
     except KeyError:
         raise KeyError('Error whilst loading config file and hyperparameters.')
 

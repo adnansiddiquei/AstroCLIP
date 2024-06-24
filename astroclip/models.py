@@ -83,14 +83,19 @@ class ContrastiveBimodalPretraining(L.LightningModule):
         if self.optimizer_kwargs is None:
             self.optimizer_kwargs = {'lr': 5e-4}
 
-    def _compute_loss(self, batch: list[torch.Tensor], batch_idx):
-        def _embed(modality_idx: int):
-            # has shape (batch_size, embedding_dim)
-            tmp = self.encoders[modality_idx](batch[modality_idx])
-            return F.normalize(tmp, p=2, dim=-1)
+    def _embed(self, modality_idx: int, batch: list[torch.Tensor]):
+        # has shape (batch_size, embedding_dim)
+        tmp = self.encoders[modality_idx](batch[modality_idx])
+        return F.normalize(tmp, p=2, dim=-1)
 
-        embedding_0 = _embed(0)
-        embedding_1 = _embed(1)
+    def _compute_loss(self, batch: list[torch.Tensor], batch_idx):
+        # def _embed(modality_idx: int):
+        #     # has shape (batch_size, embedding_dim)
+        #     tmp = self.encoders[modality_idx](batch[modality_idx])
+        #     return F.normalize(tmp, p=2, dim=-1)
+
+        embedding_0 = self._embed(0, batch)
+        embedding_1 = self._embed(1, batch)
 
         loss = self.loss_func(embedding_0, embedding_1)
 
@@ -146,7 +151,7 @@ class AstroCLIP(ContrastiveBimodalPretraining):
     def __init__(
         self,
         encoders: list[nn.Module],
-        val_redshifts: torch.Tensor,
+        val_redshifts: torch.Tensor = None,
         cross_modal_transforms: nn.Sequential = nn.Sequential(),
         train_transforms_and_augmentations: list[nn.Sequential] = (
             nn.Sequential(),
@@ -170,13 +175,19 @@ class AstroCLIP(ContrastiveBimodalPretraining):
         )
 
         self.checkpoints_dir = checkpoints_dir
-        self.val_redshifts = val_redshifts.numpy()
+
+        if val_redshifts is not None:
+            self.val_redshifts = val_redshifts.numpy()
+        else:
+            self.val_redshifts = None
 
     def _predict_redshifts(self, source_embedding, target_embedding, n_neighbours=16):
         """
         Predicts redshift for each embedding in source_embedding, by averaging the redshifts of its closest neighbours
         in target_embedding.
         """
+        assert self.val_redshifts is not None, 'Validation redshifts must be provided'
+
         assert (
             source_embedding.shape[0] == target_embedding.shape[0]
         ), 'Embeddings must have the same dimension'
@@ -194,6 +205,33 @@ class AstroCLIP(ContrastiveBimodalPretraining):
             [actual_redshifts[indices[i]].mean() for i in range(num_embeddings)]
         )
         return actual_redshifts, predicted_redshifts
+
+    def predict_step(self, batch: Any, batch_idx: int, dataloader_idx: int = 0) -> Any:
+        # def _apply_transforms_and_augmentations(modality_idx: int):
+        #     tmp = self.val_transforms_and_augmentations[modality_idx](batch)
+        #
+        #     assert not torch.isnan(
+        #         tmp
+        #     ).any(), f'Modality {modality_idx} contains NaNs after transformations and augmentations have been applied.'
+        #
+        #     return tmp
+        #
+        # batch = [
+        #     _apply_transforms_and_augmentations(0),
+        #     _apply_transforms_and_augmentations(1),
+        # ]
+        #
+        # batch = [
+        #     self._embed(0, batch),
+        #     self._embed(1, batch)
+        # ]
+        #
+        # return batch
+
+        embedding_0 = self._embed(0, batch)
+        embedding_1 = self._embed(1, batch)
+
+        return embedding_0, embedding_1
 
     def validation_epoch_end(self, outputs) -> None:
         epoch = self.trainer.current_epoch

@@ -187,7 +187,7 @@ def load_pretrained_image_encoder(model_path: str, unfreeze_all: bool = False):
     return image_encoder
 
 
-def create_dataloaders(cache_dir, batch_size, num_workers):
+def create_dataloaders(cache_dir, batch_size, num_workers, val_drop_last=True):
     # Load the dataset, if the dataset is not already in the cache dir it'll be downloaded
     dataset = download_desi_dataset(cache_dir)
 
@@ -203,7 +203,7 @@ def create_dataloaders(cache_dir, batch_size, num_workers):
         dataset['test'],
         batch_size=batch_size,
         shuffle=False,
-        drop_last=True,
+        drop_last=val_drop_last,
         num_workers=num_workers,
     )
 

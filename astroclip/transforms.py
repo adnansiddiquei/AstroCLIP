@@ -135,6 +135,8 @@ class MeanNormalise(nn.Module):
         mean = x.mean(dim=self.dims, keepdim=True)
         std = x.std(dim=self.dims, keepdim=True)
 
+        std = torch.where(std == 0, std + 1e-10, std)
+
         normalised = (x - mean) / std
 
         return normalised
