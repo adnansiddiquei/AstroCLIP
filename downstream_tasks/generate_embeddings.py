@@ -92,14 +92,11 @@ def main():
     torch.save(image_embeddings, f'{cache_dir}/image_embeddings.pt')
     torch.save(spectrum_embeddings, f'{cache_dir}/spectrum_embeddings.pt')
 
-    redshifts = torch.Tensor([])
     valid_idx = torch.Tensor([]).to(torch.int64)
     batch_size = hparams['batch_size']
 
     with torch.no_grad():
         for idx, batch in tqdm(enumerate(val_loader), total=len(val_loader)):
-            redshifts = torch.cat([redshifts, batch['redshift']])
-
             valid_idx_in_current_batch = torch.from_numpy(
                 np.nonzero(
                     np.in1d(
@@ -111,7 +108,6 @@ def main():
 
             valid_idx = torch.cat([valid_idx, valid_idx_in_current_batch])
 
-    torch.save(redshifts, f'{cache_dir}/redshifts.pt')
     torch.save(valid_idx, f'{cache_dir}/valid_indices.pt')
 
 
