@@ -26,7 +26,7 @@ class CNNBlock1d(nn.Module):
 
 
 class SpectrumEncoderSpender(nn.Module):
-    def __init__(self, state_dict=None, mlp=None):
+    def __init__(self, state_dict=None, mlp=None, copy_mlp_weights=True):
         super(SpectrumEncoderSpender, self).__init__()
 
         self.encoder = spender.SpectrumEncoder(None, 6)
@@ -36,9 +36,11 @@ class SpectrumEncoderSpender(nn.Module):
             self.encoder.load_state_dict(state_dict, strict=False)
 
         if mlp is not None:
+            self.encoder.mlp = mlp
+
+        if copy_mlp_weights:
             # if a different MLP is provided, copy the weights from spender to the new MLP for the first layer
             copy_weights(self.encoder.mlp[0], mlp[0])
-            self.encoder.mlp = mlp
 
     def forward(self, x):
         return self.encoder(x)

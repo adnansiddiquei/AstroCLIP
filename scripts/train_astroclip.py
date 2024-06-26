@@ -54,11 +54,13 @@ def main():
     spectrum_encoder = load_pretrained_spectrum_encoder(
         f'{cache_dir}/{config["pretrained_spectrum_encoder"]}',
         unfreeze_all=hparams['unfreeze_all'],
+        embedding_dim=hparams['embedding_dim'],
     )
 
     image_encoder = load_pretrained_image_encoder(
         f'{cache_dir}/{config["pretrained_image_encoder"]}',
         unfreeze_all=hparams['unfreeze_all'],
+        embedding_dim=hparams['embedding_dim'],
     )
 
     model_checkpoints_dir = f'{output_dir}/{args.ckptdir}' if args.ckptdir else None
