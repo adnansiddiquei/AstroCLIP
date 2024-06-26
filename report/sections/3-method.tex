@@ -2,12 +2,19 @@
 %! Date = 04/06/2024
 
 \section{Method}\label{sec:method}
-\subsection{Objective}\label{subsec:objective}
-As per the original AstroCLIP implementation~\citep{astroclip}, the objective of this piece of work was to embed galaxy
-spectra and galaxy images into a shared latent space using a multi-modal contrastive learning approach.
-This follows on naturally from the assumption that the two modalities are different physical representations of the same
-underlying object, and as such should be able to be represented in a shared, lower dimensional space.
-The aim of this reproduction was to
+Assuming that galaxy spectra and galaxy images can be viewed as different physical representations of the same underlying
+object, reasonably, one can assume that there is enough mutual information within the two modalities to be able to effectively
+embed them into a shared latent space.
+As such, the objective of this piece of work was to reproduce the results of the original AstroCLIP paper~\citep{astroclip}
+which implemented a multi-modal contrastive learning approach to embed galaxy spectra and galaxy images into a shared embedding
+space.
+This was done using 2 pretrained convolutional spectrum and image embedders, and then fine-tuning the model using contrastive
+learning under the InfoNCE loss~\citep{oord2019}, as per Equation~\eqref{eq:infonce}, to learn a shared 128-dimensional embedding space for the two modalities.
+
+\begin{equation}
+\label{eq:infonce}
+    \mathcal{L}(\mathbf{X}, \mathbf{Y}) = - \frac{1}{K} \sum_{i=1}^K \log \frac{\exp(S_C(\mathbf{x}_i, \mathbf{y}_i) / \tau)}{\sum_{j}^K \exp(S_C(\mathbf{x}_i, \mathbf{y}_j) / \tau)}.
+\end{equation}
 
 \subsection{Implementation}\label{subsec:implementation}
 Our implementation did not differ too greatly from the original AstroCLIP implementation~\citep{astroclip}.

@@ -56,6 +56,8 @@ class InfoNCELoss(nn.Module):
         # logits is the similarity matrix between x and y.
         # logits.T is the similarity matrix between y and x, equivalent to logits.T = y @ x.T
         # We compute the cross-entropy loss in both directions and average them.
+        # Though in AstroCLIP case, these should really be the same in each direction, as the similarity matrix is
+        # symmetric.
         loss = (F.cross_entropy(logits, labels) + F.cross_entropy(logits.T, labels)) / 2
 
         return loss
