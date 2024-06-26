@@ -96,7 +96,6 @@ def get_image_operations():
         CenterCrop(96),
         MeanNormalise(dims=[-1, -2]),  # Normalise the image to mean 0, std 1
         AddGaussianNoise(0, 0.03),
-        # ToRGB(),
     )
 
     val = nn.Sequential(
@@ -104,7 +103,6 @@ def get_image_operations():
         Permute([0, 3, 1, 2]),  # Change to [batch_size, channel, npix, npix]
         CenterCrop(96),
         MeanNormalise(dims=[-1, -2]),  # Normalise the image to mean 0, std 1
-        # ToRGB(),
     )
 
     return train, val

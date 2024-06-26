@@ -20,12 +20,15 @@ the following files to the cache directory:
     - `valid_indices.pt`
 4. You can now run through the notebooks to generate the results of the downstream tasks and the plots used in the paper.
 
-**What is the `valid_indices.pt`?**: There are 39,599 image-spectra pairs in the validation set. The `generate_embeddings.py`
-script will therefore generate a tensor of shape (39599, 128) for the spectrum and image embeddings. `valid_indices.pt` will
-be of shape (39219,) which is exactly 380 elements shorter than the embedding tensors. This is because there are 380
-image-spectra pairs that have been removed from the validation set due to invalid spectra or redshift being outside the
-range [0, 0.8]. Therefore, `valid_indices.pt` contains the indices of the valid rows in `spectrum_embeddings.pt`,
-`image_embeddings.pt`. The reason that we do not just generate the embeddings with these invalid rows removed is because
-we want to maintain the correspondence between the rows in the embeddings and the original validation set. For example,
-we want row 628 in the embeddings to correspond to the 628th image-spectrum pair in the validation set, otherwise it makes
-it difficult to match the embeddings to their respective image-spectra pairs and redshift data.
+**What is the `valid_indices.pt`?**: There are 39,599 image-spectra pairs in the validation set.
+The `generate_embeddings.py` script will therefore generate a tensor of shape (39599, 128) for the spectrum and image embeddings.
+`valid_indices.pt` will be of shape (39219,) which is exactly 380 elements shorter than the embedding tensors.
+This is because there are 380 image-spectra pairs that have been removed from the validation set due to invalid spectra
+or redshift being outside the range [0, 0.8].
+These invalid pairs are removed on the fly at the start of each minibatch during training, they are not removed directly
+from the dataset.
+Therefore, `valid_indices.pt` contains the indices of the valid rows in `spectrum_embeddings.pt`, `image_embeddings.pt`.
+The reason that we do not just generate the embeddings with these invalid rows removed is because we want to maintain the
+correspondence between the rows in the embeddings and the original validation set.
+For example, we want row 628 in the embeddings to correspond to the 628th image-spectrum pair in the validation set,
+otherwise it makes it difficult to match the embeddings to their respective image-spectra pairs and redshift data.
