@@ -52,12 +52,12 @@ def main():
     )
 
     spectrum_encoder = load_pretrained_spectrum_encoder(
-        config['astroclip']['pretrained_spectrum_encoder'],
+        f'{cache_dir}/{config["pretrained_spectrum_encoder"]}',
         unfreeze_all=hparams['unfreeze_all'],
     )
 
     image_encoder = load_pretrained_image_encoder(
-        config['astroclip']['pretrained_image_encoder'],
+        f'{cache_dir}/{config["pretrained_image_encoder"]}',
         unfreeze_all=hparams['unfreeze_all'],
     )
 
@@ -67,7 +67,7 @@ def main():
         os.makedirs(model_checkpoints_dir)
 
     dataset, train_loader, val_loader = create_dataloaders(
-        cache_dir, hparams['batch_size'], config['astroclip']['num_workers']
+        cache_dir, hparams['batch_size'], config['num_workers']
     )
 
     # Get the valid redshifts for the validation set, this is so we can compute and track the R-squared values of the

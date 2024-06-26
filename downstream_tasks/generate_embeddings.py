@@ -48,11 +48,11 @@ def main():
 
     # Get the encoders
     spectrum_encoder = load_pretrained_spectrum_encoder(
-        config['astroclip']['pretrained_spectrum_encoder'],
+        f'{cache_dir}/{config["pretrained_spectrum_encoder"]}',
     )
 
     image_encoder = load_pretrained_image_encoder(
-        config['astroclip']['pretrained_image_encoder'],
+        f'{cache_dir}/{config["pretrained_image_encoder"]}',
     )
 
     cross_modal_transforms = get_cross_modal_transforms()
@@ -66,7 +66,7 @@ def main():
     dataset, train_loader, val_loader = create_dataloaders(
         cache_dir,
         hparams['batch_size'],
-        config['astroclip']['num_workers'],
+        config['num_workers'],
         val_drop_last=False,
     )
 
