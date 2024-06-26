@@ -28,7 +28,7 @@ The poetry method will just use poetry directly to create a virtual environment 
 This will install the packages listed in the `pyproject.toml` file.
 
 ## Config file
-This repository contains a config file `config.yaml` which contains a variety of configurations which are loaded by
+This repository contains a config file [`config.yaml`](config.yaml) which contains a variety of configurations which are loaded by
 the scripts utilised in this repository. The config file has been left as is from the original training of this model,
 as an example of what it should look like, so feel free to amend it as necessary for you own system.
 
@@ -77,25 +77,25 @@ The AstroCLIP model can be trained by running:
 python scripts/train_astroclip.py --config=local --jobid=00001 --ckptdir=astroclip_ckpt_00001 --hparams=h01
 ````
 
-The script uses [WandB](https://wandb.ai/site) for logging so ensure you hve an account and are logged in prior to running
+The script uses [WandB](https://wandb.ai/site) for logging so ensure you have an account and are logged in prior to running
 the above script.
 ```bash
 wandb login YOUR_API_KEY
 ```
 
-Otherwise, if you want to disable WandB logging you can run the script with the additional flag `--no-wandb`:
+Otherwise, if you want to disable WandB logging, you can run the script with the additional flag `--no-wandb`:
 ```bash
 python scripts/train_astroclip.py --config=local ... --no-wandb
 ````
 
-- `--jobid` is used to uniquely log this run to WandB for logging purposes;
+- `--jobid` is used to uniquely identify this run to WandB for logging purposes;
 - `--ckptdir` is the name of the directory to store the pytorch Lightning model checkpoints, this directory will be
-created inside the `hpc.output_dir` directory specified in the `config.yaml` file;
+created inside the `local.output_dir` directory specified in the `config.yaml` file;
 - `--hparams` sets the hyperparameters for this run, these are set in the `hyperparameters.yaml` file and
 the `h01` hyperparameters are the hyperparameters used in this paper.
 
 ### Running on a High Performance Computing Cluster (HPC)
-See the `scripts/slurm` directory for the slurm scripts used to run the AstroCLIP model on the Cambridge University HPC.
+See the [`scripts/slurm`](scripts/slurm) directory for the slurm scripts used to run the AstroCLIP model on the Cambridge University HPC.
 They are given as used exactly in producing the results in this paper, for the `as3438` HPC user and so will need to be
 amended as required, to work on another HPC or user.
 The scripts also assume that poetry was used for the environment set up, but this can be amended as necessary.
