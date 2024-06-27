@@ -17,7 +17,7 @@ embedding space for the two modalities
     \mathcal{L}(\mathbf{X}, \mathbf{Y}) = - \frac{1}{K} \sum_{i=1}^K \log \frac{\exp(S_C(\mathbf{x}_i, \mathbf{y}_i) / \tau)}{\sum_{j}^K \exp(S_C(\mathbf{x}_i, \mathbf{y}_j) / \tau)}.
 \end{equation}
 where $\mathbf{X}$ and $\mathbf{Y}$ is an embedded batch of sets of galaxy spectra and images, $K$ is the size of the
-batch, $S_C$ is the cosine similarity function, and $\tau$ is a smoothing parameter.
+batch, $S_C$ is the cosine similarity function, and $\tau$ is a smoothing parameter (often called the temperature).
 Indices $i$ correspond to positive pairs (embedded image-spectra pairs which correspond to the same galaxy) and $j$ corresponds
 to negative pairs (embedded image-spectra pairs which correspond to different galaxies).
 Formerly, $S_C$ defined in Equation~\eqref{eq:cosine-similarity}
@@ -127,6 +127,10 @@ on the trained model.
 The final fully-connected layers of this model contained 3 layers with 2048, 2048 and 128 units respectively.
 The final 128 unit layer was adjusted as required to produce the output dimensionality we desired, but otherwise all
 weights and biases were initiated as per the pretrained model.
+This yielded between 27.7M and 28.8M trainable parameters depending on the output dimensionality of the model.
+
+\cite{astroclip} use pre-train a vision transformer model for their image embedder, we refer the reader to the original paper
+for a more detailed discussion on the architecture and pre-training strategy for this.
 
 \subsubsection{Spectrum Embedder}\label{subsubsec:spectrum-embedder}
 \cite{liang2023} trained a galaxy spectrum autoencoder using galaxy spectra from the DESI Early Data Release~\citep{desiearly2023},
@@ -143,6 +147,20 @@ first 2 fully-connected layer were retained with the output layer being initiali
 For $D_{out} \in [256, 512]$, $D_{-1}$ was set to 256 and the entire fully-connected part of the model was retrained
 from Gaussian initialisation.
 The convolutional layers were initialised from the pre-trained weights of the SPENDER model.
+This yielded between 3.1M to 3.3M trainable parameters, depending on the output dimensionality of the model.
+
+\cite{astroclip} once again use a transformer architecture for their spectrum encoder, and we refer the reader to the original
+paper for a more detailed discussion on the architecture and pre-training strategy for this.
+
+\subsection{Training}\label{subsec:training}
+Our AstroCLIP model unifies these two embedders into a single model, and then fine-tunes the embeddings using the InfoNCE loss
+(Equation~\eqref{eq:infonce}).
+Through some exploratory analysis, we fixed a few hyperparameters: batch size of 512; learning rate of $5e^{-4}$; a weight
+decay of $1e^{-4}$; and a temperature parameter in the InfoNCE loss of 0.07.
+The embedding dimensionality was varied through the range $[8, 16, 32, 64, 128, 256, 512]$ and each model was trained for
+75 epochs.
+After the training, the model with the lowest validation loss for each embedding dimensionality was selected for evaluation
+in Section~\eqref{sec:results}.
 
 
 
