@@ -5,9 +5,7 @@ import pytorch_lightning as L
 from tqdm import tqdm
 
 from astroclip.models import AstroCLIP
-from astroclip.utils import (
-    load_config,
-)
+from astroclip.utils import load_config, create_dir_if_required
 
 from astroclip.training_utils import (
     get_image_operations,
@@ -22,6 +20,8 @@ import argparse
 
 
 def main():
+    embedding_output_dir = create_dir_if_required(__file__, 'out')
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -89,8 +89,8 @@ def main():
     image_embeddings = torch.concat([e[0] for e in embeddings], dim=0).cpu()
     spectrum_embeddings = torch.concat([e[1] for e in embeddings], dim=0).cpu()
 
-    torch.save(image_embeddings, f'{cache_dir}/image_embeddings.pt')
-    torch.save(spectrum_embeddings, f'{cache_dir}/spectrum_embeddings.pt')
+    torch.save(image_embeddings, f'{embedding_output_dir}/image_embeddings.pt')
+    torch.save(spectrum_embeddings, f'{embedding_output_dir}/spectrum_embeddings.pt')
 
     valid_idx = torch.Tensor([]).to(torch.int64)
     batch_size = hparams['batch_size']
@@ -108,7 +108,7 @@ def main():
 
             valid_idx = torch.cat([valid_idx, valid_idx_in_current_batch])
 
-    torch.save(valid_idx, f'{cache_dir}/valid_indices.pt')
+    torch.save(valid_idx, f'{embedding_output_dir}/valid_indices.pt')
 
 
 if __name__ == '__main__':
