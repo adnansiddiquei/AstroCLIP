@@ -129,7 +129,7 @@ The final 128 unit layer was adjusted as required to produce the output dimensio
 weights and biases were initiated as per the pretrained model.
 This yielded between 27.7M and 28.8M trainable parameters depending on the output dimensionality of the model.
 
-\cite{astroclip} use pre-train a vision transformer model for their image embedder, we refer the reader to the original paper
+\cite{astroclip} pre-train a vision transformer model for their image embedder, we refer the reader to the original paper
 for a more detailed discussion on the architecture and pre-training strategy for this.
 
 \subsubsection{Spectrum Embedder}\label{subsubsec:spectrum-embedder}
@@ -153,66 +153,58 @@ This yielded between 3.1M to 3.3M trainable parameters, depending on the output 
 paper for a more detailed discussion on the architecture and pre-training strategy for this.
 
 \subsection{Training}\label{subsec:training}
+\begin{figure}[t]
+    \centering
+    \makebox[\textwidth]{\includegraphics[width=0.9\textwidth]{figures/train_batch_size}}
+    \caption{The batch size for each batch after the pre-processing steps were applied to the batch on the fly.
+    Each line represents the batch size throughout the training of AstroCLIP models with everything identical except the
+    embedding dimensionality.
+    The individual lines are not meant to be discernable from one another, but rather this figure should show the general trend.}
+    \label{fig:train_batch_size}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\begin{subfigure}{1\textwidth}
+  \centering
+  \includegraphics[width=0.9\linewidth]{figures/train_loss}
+  \caption{Training loss.}
+  \label{fig:train_loss}
+\end{subfigure}%
+\hfill
+\begin{subfigure}{1\textwidth}
+  \centering
+  \includegraphics[width=0.9\linewidth]{figures/val_loss}
+  \caption{Validation loss.
+  The vertical lines correspond to the epoch at which the lowest validation loss was achieved and the horizontal
+  line corresponds to the loss value at that epoch.
+  The (embedding dimensionality, lowest validation loss, epoch) values are as follows: (8, 4.06, 24); (16, 3.92, 39);
+  (32, 3.92, 16); (64, 3.86, 27); (128, 3.85, 40); (256, 3.81, 26); (512, 3.81, 26).}
+  \label{fig:val_loss}
+\end{subfigure}
+\caption{Train and validation loss for AstroCLIP models with varying embedding dimensionality.
+The legend on Figure~\eqref{fig:train_loss} applies to both plots.}
+\label{fig:train_val_loss}
+\end{figure}
+
 Our AstroCLIP model unifies these two embedders into a single model, and then fine-tunes the embeddings using the InfoNCE loss
 (Equation~\eqref{eq:infonce}).
-Through some exploratory analysis, we fixed a few hyperparameters: batch size of 512; learning rate of $5e^{-4}$; a weight
-decay of $1e^{-4}$; and a temperature parameter in the InfoNCE loss of 0.07.
 The embedding dimensionality was varied through the range $[8, 16, 32, 64, 128, 256, 512]$ and each model was trained for
 75 epochs.
-After the training, the model with the lowest validation loss for each embedding dimensionality was selected for evaluation
-in Section~\eqref{sec:results}.
-
-
-
-
-
-
-
-%\subsection{Implementation}\label{subsec:implementation}
-%Our implementation did not differ too greatly from the original AstroCLIP implementation~\citep{astroclip}.
-%We created our AstroCLIP model with a pretrained image and spectrum embedder, and then fine-tune the model using contrastive
-%learning under the InfoNCE loss to learn a shared 128-dimensional embedding space for the two modalities.
-%To acquire the pretrained embedders, the fine-tuned embedders or the dataset used, we refer the reader to the referenced
-%literature or to our codebase which contains all the necessary details.
-%
-%\paragraph{Spectrum Embedder} We acquired a pre-trained spectrum embedder from the works of~\cite{liang2023} who used
-%a convolutional autoencoder to learn a 6-dimensional embedding for galaxy spectra using the Bright Galaxy Survey of the
-%DESI Early Data Release~\citep{desiearly2023}, for precise details on architecture and training, see the original paper.
-%The encoder consisted of a series of convolutional layers followed by 4 fully-connected layers.
-%The last 3 of these layers were deleted and replaced with a single fully-connected layer to project the output of the first
-%layer into a 128-dimensional embedding\footnote{That is to say, in the edited model, the first fully-connected layer took
-%256 inputs and output 128-dims into the second layer which also output 128-dims.
-%The first layer contained pre-trained weights, the second layer was randomly initialised.}.
-%The entire model contained 3.2M parameters, all of which were set as trainable parameters, differing to the implementation
-%by~\cite{astroclip} where the authors set only the final fully-connected layers of their pre-trained transformer-based spectral
-%embedder as trainable.
-%The spectra were normalised in the same way as done by~\cite{liang2023}\footnote{The spectra were normalised over their median
-%flux in the rest-frame wavelength range of $[5300, 5850]$, where the rest-frame spectra were computed by assuming all
-%spectra were redshifted by exactly $z=0.8$.} and then noise was added to the spectra using a
-%similar technique as utilised by~\cite{astroclip}\footnote{Noise added to the spectra at any point was Gaussian and scaled
-%by the distribution of values at any given flux measurement.
-%Measurements at wavelengths with more variance therefore had more noise added.}.
-%
-%\paragraph{Image Embedder} The image embedder we used was the same as the one used by~\cite{astroclip}, courtesy of
-%\cite{stein2021}, see Section~\eqref{sec:original-paper} for further details.
-%However, unlike~\cite{astroclip} who only fine-tuned the fully-connected layers, we once again chose to set all 28.0M parameters
-%of the model as trainable.
-%The images were transformed and augmented using the same techniques used in the original AstroCLIP paper; the 3-channel (g, r, z)
-%152x152 pixel images were augmented with Gaussian noise, rolled, rotated and flipped randomly before being cropped to the central
-%96x96 pixels.
-%This was then converted from (g, r, z) to RGB using the same scaling method utilised by~\cite{stein2021}.
-%The conversion to RBG was relatively arbitrary and did not change meaning of the image, but was done to ensure the images
-%were in the same format as expected by the pre-trained image embedder.
-%
-%\paragraph{Data} We use the same dataset as curated and helpfully provided by \cite{astroclip}, see Section~\eqref{sec:original-paper}
-%for further details.
-%This consists of 197,976 galaxy spectra and image pairs, along with their redshift measurements.
-%The data was then further pre-processed to drop any galaxies with spectra outside the range $[0, 0.8]$ which was in line with the
-%pre-training of the spectrum embedder, but is a larger range than utilised by \cite{astroclip} who used $[0, 0.6]$ in their final results.
-%Additionally, some of the galaxy spectra in the dataset were completely flat (exactly 0 flux across all wavelengths)
-%and so these galaxies were dropped from the dataset.
-%This resulted in a total of 3,241 (1.6\%) image-spectra pairs being removed in the pre-processing step.
-%The dataset was then split into a training and validation set, with 80\% of the data used for training and 20\% for
-%validation; all results displayed in this paper were performed on the validation set.
-
-%\paragraph{Training} ...
+Through some exploratory analysis, we fixed a few hyperparameters: batch size of 512; learning rate of $5e^{-4}$; a weight
+decay of $1e^{-4}$; and a temperature parameter in the InfoNCE loss of 0.07; and only varied the embedding dimensionality.
+One small aspect of note is that the batch size was not consistent throughout training, the pre-processing mentioned in
+Section~\eqref{subsubsec:pre-processing} was performed on the fly on each batch of data as and when randomly sampled by
+the DataLoader during training.
+This meant that there were small fluctuations in the batch size, and for completeness we show the batch size for each batch
+throughout the training of the AstroCLIP models in Figure~\eqref{fig:train_batch_size}.
+As can be seen on the figure, the batch size fluctuates very little and generally remains between 502 and 510.
+This fluctuating batch size was intentionally left in the training process as it's effects were negligible and would likely
+only have a positive effect through the stochasticity it introduces.
+The number of epochs required to reach the lowest validation loss, and the corresponding loss is detailed in Figure~\eqref{fig:val_loss}.
+Whilst there is a clear pattern in the training loss where the more flexible model appears to be able to achieve the
+lowest loss, the same was not true for the validation loss with no clear pattern emerging.
+However, it is important to note that a thorough sweep of hyperparameters was not performed, and so it is possible that
+a different set of hyperparameters (such as stronger regularisation on the more flexible models, to prevent over-fitting)
+could have yielded different results (lower validation loss for the more flexible models).
+The models with the lowest validation loss for each embedding dimensionality were selected for evaluation in Section~\eqref{sec:results}.
