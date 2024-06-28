@@ -158,11 +158,26 @@ def get_cross_modal_transforms():
     return batch_transforms
 
 
-def load_pretrained_spectrum_encoder(model_path: str, unfreeze_all: bool = False):
+def load_pretrained_spectrum_encoder(
+    model_path: str, unfreeze_all: bool = False, embedding_dim: int = 128
+):
+    if embedding_dim <= 128:
+        mlp = nn.Sequential(
+            nn.Linear(256, 128), nn.ReLU(), nn.Linear(128, embedding_dim)
+        )
+        copy_weights = True
+    elif embedding_dim == 256:
+        mlp = nn.Sequential(nn.Linear(256, 256), nn.ReLU(), nn.Linear(256, 256))
+        copy_weights = False
+    elif embedding_dim == 512:
+        mlp = nn.Sequential(nn.Linear(256, 256), nn.ReLU(), nn.Linear(256, 512))
+        copy_weights = False
+    else:
+        raise ValueError('Invalid embedding dimension.')
+
     # Load the pre-trained spectrum encoder
     spectrum_encoder = SpectrumEncoderSpender(
-        state_dict=torch.load(model_path),
-        mlp=nn.Sequential(nn.Linear(256, 128), nn.ReLU(), nn.Linear(128, 128)),
+        state_dict=torch.load(model_path), mlp=mlp, copy_mlp_weights=copy_weights
     )
 
     if not unfreeze_all:
@@ -172,10 +187,15 @@ def load_pretrained_spectrum_encoder(model_path: str, unfreeze_all: bool = False
     return spectrum_encoder
 
 
-def load_pretrained_image_encoder(model_path: str, unfreeze_all: bool = False):
+def load_pretrained_image_encoder(
+    model_path: str, unfreeze_all: bool = False, embedding_dim: int = 128
+):
     # Load the pre-trained image encoder
     image_model = Moco_v2.load_from_checkpoint(model_path)
     image_encoder = image_model.encoder_q
+
+    if embedding_dim != 128:
+        image_encoder.fc[-1] = nn.Linear(2048, embedding_dim)
 
     if not unfreeze_all:
         set_trainable_layers(

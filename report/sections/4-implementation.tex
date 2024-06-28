@@ -1,0 +1,43 @@
+%! Author = adnansiddiquei
+%! Date = 28/06/2024
+
+\section{AstroCLIP Implementation}\label{sec:astroclip-implementation}
+Our AstroCLIP model was implemented using a pretrained 2D convolutional image embedder courtesy of~\cite{stein2021}
+and a pretrained 1D spectrum embedder courtesy of~\cite{liang2023}.
+These were placed into our unified AstroCLIP model and then fine-tuned (with all the weights set as trainable) using
+contrastive learning under the InfoNCE loss as per Equation~\eqref{eq:infonce}, to learn the shared low-dimensional
+embedding space.
+Embeddings were projected into a variety of dimensions: $[8, 16, 32, 64, 128, 256, 512]$ to explore the effect of the
+dimensionality of the embedding space on the performance of the model, with~\cite{astroclip} using a 512 dimensional
+embedding for their model.
+Below we give a brief overview of the pretraining strategies for the image and spectrum embedders, but for a
+comprehensive report we refer the reader to the original papers.
+
+\subsection{Image Embedder}\label{subsec:image-embedder}
+\cite{stein2021} trained a galaxy image embedder using a self-supervised method for the purposes of image based similarity search.
+The image embedder was trained via the MoCo v2 framework~\citep{moco2020, mocov22020} on a sample of 42 million galaxies
+from the DESI Legacy Survey Data Release 9~\citep{desilegacy2018}.
+The encoder architecture used was a ResNet-50 architecture.
+The images underwent a variety of augmentations (galactic extinction, random rotation, blurring, noising) before
+being cropped to the central 96x96 pixels.
+The loss function used was the same InfoNCE loss we used in our AstroCLIP model as given in Equation~\eqref{eq:infonce},
+and the similarity measure used was also the cosine similarity function as given in Equation~\eqref{eq:cosine-similarity}.
+Their model yielded very promising results, and we refer the reader to the original paper for a thorough discussion
+on the trained model.
+The final fully-connected layers of this model contained 3 layers with $[2048, 2048, 128]$ units respectively.
+The final 128 unit layer was adjusted as required to produce the output dimensionality we desired, but otherwise all
+weights and biases were initialised as per the pretrained model.
+This yielded between 27.7M and 28.8M trainable parameters depending on the output dimensionality of the model.
+
+\subsection{Spectrum Embedder}\label{subsec:spectrum-embedder}
+\cite{liang2023} trained a galaxy spectrum autoencoder using galaxy spectra from the DESI Early Data Release~\citep{desiearly2023},
+focusing primarily on the Bright Galaxy Survey (BGS) (for precise details on the spectral dataset used, see the original paper).
+The autoencoder architecture, named SPENDER, was proposed by~\cite{melchior2022} and encoded the spectra into a 6-dimensional
+embedding space.
+For our AstroCLIP model, we used the encoder part of the SPENDER model which consisted of 3--1D convolutional blocks
+followed by 5 fully-connected layers to bring the dimensionality down to 6 (units per layer: $[256, 128, 64, 32, 6]$).
+We reduced the fully-connected layers to 3 layers with $[256, 128, D_{out}]$ units respectively, for any desired
+output dimensionality $D_{out} \leq 128$, and $[256, 256, D_{out}]$ for $D_{out} > 128$.
+All weights and biases were retained for the convolutional layers and all weights and biases that could be retained for the
+fully-connected layers were retained, the rest were reinitialised from a normal distribution.
+This yielded between 3.1M to 3.3M trainable parameters, depending on the output dimensionality of the model.

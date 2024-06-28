@@ -35,7 +35,9 @@ class InfoNCELoss(nn.Module):
         torch.Tensor
             InfoNCE loss.
         """
-        assert x.shape == y.shape, 'x and y must have the same shape'
+        assert (
+            x.shape == y.shape
+        ), f'x (shape {x.shape}) and y (shape {y.shape}) must have the same shape'
 
         # Compute cosine similarity
         # The leading diagonal of the similarity matrix is the similarity between x[i] and y[i] as the leading diagonal

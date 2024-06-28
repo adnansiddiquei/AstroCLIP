@@ -1,0 +1,18 @@
+%! Author = adnansiddiquei
+%! Date = 28/06/2024
+
+\section{Conclusion}\label{sec:conclusion}
+In this report, we present a successful reproduction of the AstroCLIP model by~\cite{astroclip}.
+We utilise different architectures for the image and spectrum embedders, but ultimately achieve similar results
+and show that the model is able to learn a meaningful representation of the data.
+We also explore the effect of different embedding dimensionalities on the performance of the model and show that
+even low-dimensional embeddings are able to capture a meaningful amount of mutual information between the two modalities,
+given their strong performance in the zero-shot redshift prediction tasks.
+Our results do bring into question the optimal architecture for the image embedder and optimal
+embedding dimensionality, as our 128-dimensional model marginally outperforms the 512-dimensional model by~\cite{astroclip}
+in the in-modal image to image redshift prediction task.
+Nonetheless, our results alongside those of~\cite{astroclip} demonstrate that it is possible to achieve high quality foundation
+models for astronomical data using cross-modal contrastive pre-training, and that the learned embeddings can be used for a variety
+of downstream tasks with strong performance.
+This has a variety of impacts on the field of astronomy, such as enabling cross-modal similarity searches for rare or interesting
+objects, and enabling the use of pre-trained foundation models for transfer learning on smaller datasets for specific tasks.

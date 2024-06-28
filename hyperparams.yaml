@@ -4,6 +4,63 @@ h01:
   lr: 0.0005
   weight_decay: 0.0001
   unfreeze_all: True
+  embedding_dim: 128
+h02:
+  batch_size: 512
+  max_epochs: 75
+  lr: 0.0005
+  weight_decay: 0.0001
+  unfreeze_all: True
+  embedding_dim: 256
+h03:
+  batch_size: 512
+  max_epochs: 75
+  lr: 0.0005
+  weight_decay: 0.0001
+  unfreeze_all: True
+  embedding_dim: 512
+h04:
+  batch_size: 512
+  max_epochs: 75
+  lr: 0.0005
+  weight_decay: 0.0001
+  unfreeze_all: True
+  embedding_dim: 64
+h05:
+  batch_size: 512
+  max_epochs: 75
+  lr: 0.0005
+  weight_decay: 0.0001
+  unfreeze_all: True
+  embedding_dim: 32
+h06:
+  batch_size: 512
+  max_epochs: 75
+  lr: 0.0005
+  weight_decay: 0.0001
+  unfreeze_all: True
+  embedding_dim: 16
+h07:
+  batch_size: 512
+  max_epochs: 75
+  lr: 0.0005
+  weight_decay: 0.0001
+  unfreeze_all: True
+  embedding_dim: 8
+h08:
+  batch_size: 512
+  max_epochs: 75
+  lr: 0.0005
+  weight_decay: 0.0001
+  unfreeze_all: True
+  embedding_dim: 4
+h09:
+  batch_size: 512
+  max_epochs: 75
+  lr: 0.0005
+  weight_decay: 0.0001
+  unfreeze_all: True
+  embedding_dim: 2
 
 generate_embeddings:
   batch_size: 256
