@@ -4,9 +4,9 @@
 \section{Model Training}\label{sec:training}
 \begin{figure}[t]
     \centering
-    \makebox[\textwidth]{\includegraphics[width=0.9\textwidth]{figures/train_batch_size}}
+    \makebox[\textwidth]{\includegraphics[width=1\textwidth]{figures/train_batch_size}}
     \caption{The batch size for each batch after the pre-processing steps were applied to the batch on the fly.
-    Each line represents the batch size throughout the training of AstroCLIP models with everything identical except the
+    Each line represents the batch size throughout the training of each AstroCLIP model with everything identical except the
     embedding dimensionality.
     The individual lines are not meant to be discernable from one another, but rather this figure should show the general trend.}
     \label{fig:train_batch_size}
@@ -16,14 +16,14 @@
 \centering
 \begin{subfigure}{1\textwidth}
   \centering
-  \includegraphics[width=0.9\linewidth]{figures/train_loss}
+  \includegraphics[width=1\linewidth]{figures/train_loss}
   \caption{Training loss.}
   \label{fig:train_loss}
 \end{subfigure}%
 \hfill
 \begin{subfigure}{1\textwidth}
   \centering
-  \includegraphics[width=0.9\linewidth]{figures/val_loss}
+  \includegraphics[width=1\linewidth]{figures/val_loss}
   \caption{Validation loss.
   The vertical lines correspond to the epoch at which the lowest validation loss was achieved and the horizontal
   line corresponds to the loss value at that epoch.
@@ -39,7 +39,8 @@ The legend on Figure~\eqref{fig:train_loss} applies to both plots.}
 Our AstroCLIP model unifies these two embedders into a single model, and then fine-tunes the embeddings using the InfoNCE loss
 (Equation~\eqref{eq:infonce}).
 The embedding dimensionality was varied through the range $[8, 16, 32, 64, 128, 256, 512]$ and each model was trained for
-75 epochs.
+75 epochs which took approximately 3.5 hours on a single NVIDIA A100-SXM4-80GB GPU.
+
 Through some exploratory analysis, we fixed a few hyperparameters: batch size of 512; learning rate of $5e^{-4}$; a weight
 decay of $1e^{-4}$; and a temperature parameter in the InfoNCE loss of 0.07; and only varied the embedding dimensionality.
 One small aspect of note is that the batch size was not consistent throughout training, the pre-processing mentioned in

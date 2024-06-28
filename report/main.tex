@@ -37,13 +37,26 @@
 
 
 \begin{document}
-    \abstract{Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam libero purus, lacinia ac nulla id, congue
-    dapibus dui. Maecenas gravida ligula a mi tincidunt congue. Cras condimentum tempus leo, vitae aliquam odio consequat
-    vel. Pellentesque tincidunt tellus libero, sed cursus mauris sagittis vitae. Integer bibendum metus tellus, vitae
-    tempor lectus porta ut. Duis tempus elit id neque aliquam, ac accumsan tellus scelerisque. In at sapien in nulla
-    aliquet suscipit ac vel nulla. Suspendisse quis malesuada lacus. Phasellus dapibus sapien dui, vel tincidunt turpis
-    convallis eget. Fusce ipsum arcu, pretium nec dui sit amet, viverra interdum lacus. Donec placerat tellus a felis
-    sollicitudin, ac egestas leo interdum. Cras facilisis aliquam tortor, ac feugiat nulla dignissim ut.}
+    \abstract{We present a reproduction of the AstroCLIP model by \cite{astroclip}, a cross-modal foundation model for galaxies.
+    AstroCLIP is a single cross-modal model that can embed galaxy spectra and images into a shared low-dimensional
+    embedding space.
+    AstroCLIP discovers a meaningful representation of the data by training the model using contrastive training under
+    the InfoNCE loss on the Dark Energy Spectroscopic Instrument (DESI) spectra and images from its corresponding
+    DESI Legacy Imaging Survey.
+    These cross-modal embeddings can be used for a variety of downstream tasks and we reproduce a subset of the downstream
+    tasks from the original paper to assess the performance of our AstroCLIP model, including (1) in-modal and cross-modal
+    similarity search and (2) zero-shot in-modal and cross-modal redshift prediction.
+    Our approach to this reproduction differs from the original authors in that we utilise pre-trained convolutional
+    image~\citep{stein2021} and spectrum~\citep{liang2023} embedders as opposed to the transformer architectures used
+    by \cite{astroclip}.
+    We also explore the performance of the model in the downstream tasks as the embedding dimensionality is varied
+    through $[8, 16, 32, 64, 128, 256, 512]$ dimensions.
+    We find generally equivalent performance to the original paper, and show that even low-dimensional embeddings are
+    able to perform well in the downstream tasks.
+    We outperform the original authors in the in-modal photometric redshift prediction task with a 128-dimensional
+    embedding compared to their 512-dimensional embedding, but their transformer architecture outperforms our convolutional
+    architecture in the spectroscopic redshift prediction task.
+    }
 
     \maketitle
     \flushbottom

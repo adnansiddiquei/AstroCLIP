@@ -7,9 +7,9 @@ and a pretrained 1D spectrum embedder courtesy of~\cite{liang2023}.
 These were placed into our unified AstroCLIP model and then fine-tuned (with all the weights set as trainable) using
 contrastive learning under the InfoNCE loss as per Equation~\eqref{eq:infonce}, to learn the shared low-dimensional
 embedding space.
-Embeddings were projected into a variety of dimensions: (8, 16, 32, 64, 128, 256, 512) to explore the effect of the
+Embeddings were projected into a variety of dimensions: $[8, 16, 32, 64, 128, 256, 512]$ to explore the effect of the
 dimensionality of the embedding space on the performance of the model, with~\cite{astroclip} using a 512 dimensional
-embedding for their final results.
+embedding for their model.
 Below we give a brief overview of the pretraining strategies for the image and spectrum embedders, but for a
 comprehensive report we refer the reader to the original papers.
 
@@ -24,9 +24,9 @@ The loss function used was the same InfoNCE loss we used in our AstroCLIP model 
 and the similarity measure used was also the cosine similarity function as given in Equation~\eqref{eq:cosine-similarity}.
 Their model yielded very promising results, and we refer the reader to the original paper for a thorough discussion
 on the trained model.
-The final fully-connected layers of this model contained 3 layers with 2048, 2048 and 128 units respectively.
+The final fully-connected layers of this model contained 3 layers with $[2048, 2048, 128]$ units respectively.
 The final 128 unit layer was adjusted as required to produce the output dimensionality we desired, but otherwise all
-weights and biases were initiated as per the pretrained model.
+weights and biases were initialised as per the pretrained model.
 This yielded between 27.7M and 28.8M trainable parameters depending on the output dimensionality of the model.
 
 \subsection{Spectrum Embedder}\label{subsec:spectrum-embedder}

@@ -8,7 +8,7 @@ Their approach consisted of two main components, (1) self-supervised pre-trainin
 embedder and a vision transformer image embedder to generate high quality single-modal embeddings followed by (2) a
 contrastive learning approach to align the two embedders into a shared latent space.
 
-Given that galaxy spectra and galaxy images are two different views upon the same underlying physical object, the
+Given that galaxy spectra and galaxy images are two different views on the same underlying physical object, the
 contrastive learning approach relies on the assumption that there is enough mutual information between the two views
 to align them into a shared latent space.
 The embedders are aligned by maximising the similarity of the embeddings of augmented views of the same object and
@@ -19,11 +19,11 @@ This is done under the InfoNCE loss~\citep{oord2019}, as per Equation~\eqref{eq:
 \label{eq:infonce}
     \mathcal{L}(\mathbf{X}, \mathbf{Y}) = - \frac{1}{K} \sum_{i=1}^K \log \frac{\exp(S_C(\mathbf{x}_i, \mathbf{y}_i) / \tau)}{\sum_{j}^K \exp(S_C(\mathbf{x}_i, \mathbf{y}_j) / \tau)}.
 \end{equation}
-where $\mathbf{X}$ and $\mathbf{Y}$ is an embedded batch of galaxy spectra and images respectively, $K$ is the batch size,
+where $\mathbf{X}$ and $\mathbf{Y}$ are an embedded batch of galaxy spectra and images respectively, $K$ is the batch size,
 $S_C$ is the cosine similarity function, and $\tau$ is a smoothing parameter (often called the temperature).
 Indices $i$ correspond to positive pairs (embedded image-spectra pairs which correspond to the same galaxy) and $j$ corresponds
 to negative pairs (embedded image-spectra pairs which correspond to different galaxies).
-Formerly, $S_C$ defined in Equation~\eqref{eq:cosine-similarity}
+Formally, $S_C$, as defined in Equation~\eqref{eq:cosine-similarity}
 
 \begin{equation}
 \label{eq:cosine-similarity}
@@ -32,8 +32,7 @@ Formerly, $S_C$ defined in Equation~\eqref{eq:cosine-similarity}
 \end{equation}
 is the normalised dot product between any two embeddings, which is equivalent to the cosine of the angle $\theta_{i,j}$ between the
 two embeddings.
-The similarity measure $S_C$ is bounded in the range [-1, 1], and by construction, for any two embeddings which refer to
-the same galaxy then $S_C(\mathbf{x}_i, \mathbf{y}_i) = 1$ given that $\theta_{i,i} = 0$ $\forall i$.
+The similarity measure $S_C$ is bounded in the range [-1, 1].
 
 ~\cite{astroclip} use a novel transformer based architecture for the spectrum embedder as opposed to the more traditional
 1D convolutional architecture which is typically used for spectral data, and they pre-train it through a self-supervised
@@ -41,17 +40,16 @@ mask filling task.
 The image embedder is a standard vision transformer ViT~\citep{dosovitskiy2021} architecture which is pre-trained using
 the DINO v2 self-supervised learning framework~\citep{oquab2024}.
 We refer the reader to the original paper for more details on the pre-training and see Section~\eqref{sec:data} for details
-on the dataset used for pre-training (as we use the same dataset for our reproduction).
+on the dataset used (as we use the same dataset for our reproduction).
 Following the training, the two embedders are aligned under the InfoNCE loss, using a large batch size of 1024 to ensure
 that there is a significant number of negative samples per batch.
-The shared embedding dimensionality is $\mathbf{z} \in \mathbb{R}^{512}$.
+The final shared latent dimensionality is $\mathbf{z} \in \mathbb{R}^{512}$.
 
 \subsection{Key Results}\label{subsec:original-paper-key-results}
 To demonstrate the effectiveness of their AstroCLIP embeddings,~\cite{astroclip} evaluate their embeddings on a variety
 of downstream tasks: (1) in-modal and cross-modal retrieval of galaxy spectra and images through cosine similarity; (2)
-zero-shot (k-NN regression) and few-shot (supervised training of an additional MLP on the embeddings) in-modal redshift
-predictions; (3) zero-shot and few-shot in-modal galaxy property (stellar mass, metallicity, age and star formation rate)
-predictions.
+zero-shot and few-shot in-modal redshift predictions; (3) zero-shot and few-shot in-modal galaxy property
+(stellar mass, metallicity, age and star formation rate) predictions.
 
 The similarity search successfully extracts visually similar spectra and images.
 The zero-shot redshift estimation were performed by predicting the redshift of a galaxy using the redshift of its nearest
@@ -59,6 +57,6 @@ The zero-shot redshift estimation were performed by predicting the redshift of a
 Their zero-shot image redshift predictions gave an $R^{2}$ metric (coefficient of determination) of 0.78 (with predicted
 redshift plotted against true redshift), and their zero-shot spectrum redshift predictions gave an $R^{2}$ metric of 0.98.
 The image results outperformed the supervised baseline models (ResNet18 and MLP) as well as the state-of-the-art
-self-supervised models for galaxy images~\citep{stein2021}.
+self-supervised model for galaxy images~\citep{stein2021}.
 In this paper we attempt to reproduce the metrics listed above, but we refer the reader to the original paper for a
 more detailed analysis of the results.

@@ -48,8 +48,8 @@ exactly the same as that of~\cite{astroclip}.
 However, our spectroscopic $S_{kNN}(\mathbf{z}_{q}^{sp}, \mathbf{z}^{sp})$ redshift predictions for the 512-dimensional
 embedding was 0.95 compared to the 0.98 reported by~\cite{astroclip}, which alludes to the effectiveness their novel
 transformer architecture for spectral embeddings.
-Notably, our 128-dimensional embedding model marginally outperforms the 512-dimensional embedding model in the in-modal
-image to image photometric redshift prediction task with an $R^{2}$ value of 0.80, as shown on both Figure~\eqref{fig:rkr}
+Notably, our 128-dimensional embedding model marginally outperforms the 512-dimensional embedding model in the
+photometric redshift prediction task with an $R^{2}$ value of 0.80, as shown on both Figure~\eqref{fig:rkr}
 and Figure~\eqref{fig:r2_vs_embedding_dim}.
 This indicates that the vision transformer architecture used by~\cite{astroclip} gave no significant advantage over the
 2D convolutional architecture used in this work for the image embedder.
@@ -73,8 +73,10 @@ information between the two modalities enabling the model to learn a meaningful 
 \begin{figure}[t]
     \centering
     \makebox[\textwidth]{\includegraphics[width=1\textwidth]{figures/sim_search_spectra}}
-    \caption{Similar to Figure~\eqref{fig:ssia}, each row in this figure depicts a single query galaxy (query spectrum in red,
-        galaxy imaged in plot (b)), with each subfigure showing the spectrum of the 3 most cosine similar galaxies to the
+    \caption{In-modal and cross-modal similarity search using cosine similarity on the learned embeddings for the
+        best 128-dimensional embedding model.
+        Each row in this figure depicts a single query galaxy (query spectrum in red, galaxy imaged in plot (b)), with
+        each subfigure showing the spectrum of the 3 most cosine similar galaxies to the
         query galaxy by in-modal and cross-modal similarity search.}
     \label{fig:sss}
 \end{figure}
