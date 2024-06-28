@@ -43,7 +43,7 @@ proportionately.
 \subsection{DESI Early Data Release Spectra}\label{subsec:spectra}
 The spectra were extracted from the DESI Early Data Release~\citep{desiearly2023} and only those that were successfully
 cross-matched with the galaxy images were kept.
-The spectra ranged the wavelength range of $[3600 \si{\angstrom}, 9824 \si{\angstrom}]$, with a resolution of 7781 pixels per spectrum.
+The spectra ranged the wavelength range of $[3600 \si{\angstrom}, 9824 \si{\angstrom}]$, with a resolution of 7781 bins per spectrum.
 As with the image data, the spectra were also standardised individually, to mean 0 and standard deviation 1, and then
 noise $\epsilon_{sp}(\lambda)$ was added in the form of scaled Gaussian noise as given in Equation~\eqref{eq:spectrum-noise}.
 
@@ -54,10 +54,20 @@ noise $\epsilon_{sp}(\lambda)$ was added in the form of scaled Gaussian noise as
 where $\epsilon_{sp}(\lambda)$ is the noise added to the spectrum at wavelength $\lambda$, $\gamma$ is a constant scaling factor,
 $\sigma_{sp}(\lambda)$ is the standard deviation of the spectrum at wavelength $\lambda$,
 and $\mathcal{G}(0, 1)$ is a standard Gaussian random variable.
+\begin{figure}[t]
+    \centering
+    \makebox[\textwidth]{\includegraphics[width=1\textwidth]{figures/observed_spectra_std_dev}}
+    \caption{$\sigma_{sp}(\lambda)$ for the training set.
+    Each spectrum had 7781 bins, the x-axis represents the bin index, and the y-axis represents the standard deviation
+    of the standardised bin value across all 158,377 training spectra, for that given bin.}
+    \label{fig:spectra_std}
+\end{figure}
 $\sigma_{sp}(\lambda)$ was computed for the training set such that $\sigma_{sp}(i)$ $(i \in [0, 7781])$ gave the standard
-deviation of all 158,377 train spectra measurements at the $i^{th}$ pixel.
-This meant that the noise added to the spectra at any given wavelength was proportional to the variance of the spectra
-at the given wavelength, which complemented the fact that some wavelengths naturally had more variance than others.
+deviation of all 158,377 train spectra measurements at the $i^{th}$ bin.
+This computed $\sigma_{sp}(\lambda)$ is shown in Figure~\eqref{fig:spectra_std}.
+This was useful as it meant that the noise added to the spectra at any given wavelength was proportional to the variance
+of the spectra at the given wavelength, which complemented the fact that some wavelengths naturally had more variance than others,
+as shown by Figure~\eqref{fig:spectra_std}.
 $\gamma$ was set to 0.3.
 
 \subsection{Redshift measurements}\label{subsec:redshift}
