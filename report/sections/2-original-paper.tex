@@ -1,43 +1,64 @@
 %! Author = adnansiddiquei
 %! Date = 04/06/2024
 
-%\section{Original AstroCLIP Paper}\label{sec:original-paper}
-%The original AstroCLIP paper~\cite{astroclip} whose results we reproduce in this paper, implemented a multi-modal contrastive
-%learning approach to embed galaxy spectra and galaxy images into a shared latent space.
-%This implementation utilised a transformer-based spectrum embedder and a convolutional image embedder to project the two
-%modalities into a shared 128-dimensional embedding, and further showed that the learned embeddings were well-aligned
-%with the physical properties of the galaxies.
-%The authors demonstrated that the learned embeddings could be used to make relatively accurate zero-shot predictions on
-%redshift and stellar mass of galaxies using k-NN regression.
-%For ease of comparison, we provide a brief overview of the implementation details and key results of the original
-%AstroCLIP paper.
-%
-%\paragraph{Data} The galaxy image data used by the authors~\citep{astroclip} was curated from the DESI Legacy Survey Data
-%Release 9~\citep{desilegacy2018}, as prepared by~\cite{stein2021}.
-%This was cross-referenced to the DESI Early Data Release~\citep{desiearly2023} to obtain the corresponding galaxy spectra,
-%and cross-referenced to the PRObabilistic Value-Added Bright Galaxy Survey (PROVABGS) Catalog~\citep{provabgs2021}
-%to obtain the redshift and stellar mass labels for the galaxies - yielding a total of 197,976 galaxy spectra and image pairs.
-%
-%\paragraph{Spectrum Embedder} The authors pre-trained a transformer-based spectrum embedder using a self-supervised mask
-%filling task on the galaxy spectra.
-%All the weights of this embedder were then frozen and a single cross-attention layer followed by an MLP was added to project
-%the spectrum into a 128-dimensional embedding, yielding a total of 362k trainable parameters.
-%
-%\paragraph{Image Embedder} The pre-trained convolutional image embedder was acquired from~\cite{stein2021}.
-%This image embedder had a ResNet-50 architecture and was trained with a self-supervised method on a sample of 3.5 million
-%galaxy images (augmented in a variety of ways) from the DESI Legacy Survey~\citep{desilegacy2018} using the MoCo v2
-%framework~\citep{moco2020, mocov22020} in order to embed the images into a 128-dimensional space.
-%This image embedder had the convolutional layers frozen and yielding a total of 4.5M trainable parameters in the final
-%dense layers of the model.
-%
-%\paragraph{Training} The authors used a contrastive learning approach to learn a shared embedding space for the images
-%and spectra.
-%A variety of augmentations were applied to the images and spectra and the respective embedders were trained using an
-%InfoNCE loss~\citep{oord2019} over 15,000 iterations with a batch size of 512.
-%
-%\paragraph{Key Results} The authors demonstrated that the embeddings were well-aligned in 2 main ways:
-%In-modal and cross-modal similarity searches using cosine similarity showed that two 'cosine similar' galaxies yielded
-%similar spectra and images.
-%Secondly, zero-shot regression of redshift and stellar mass using k-NN regression on the learned embeddings similarly
-%yielded relatively accurate predictions.
-%These are both further discussed in XXXXX when we compare the results of our reproduction with the original paper.
+\section{A Review of AstroCLIP}\label{sec:original-paper}
+For a detailed description of AstroCLIP's original implementation, we refer the reader to~\cite{astroclip}, but given that
+this is a reproduction of their work, we provide brief overview of their method and key results here.
+Their approach consisted of two main components, (1) self-supervised pre-training of a novel transformer-based spectrum
+embedder and a vision transformer image embedder to generate high quality single-modal embeddings followed by (2) a
+contrastive learning approach to align the two embedders into a shared latent space.
+
+Given that galaxy spectra and galaxy images are two different views upon the same underlying physical object, the
+contrastive learning approach relies on the assumption that there is enough mutual information between the two views
+to align them into a shared latent space.
+The embedders are aligned by maximising the similarity of the embeddings of augmented views of the same object and
+minimising the similarity of the embeddings of different objects.
+This is done under the InfoNCE loss~\citep{oord2019}, as per Equation~\eqref{eq:infonce}
+
+\begin{equation}
+\label{eq:infonce}
+    \mathcal{L}(\mathbf{X}, \mathbf{Y}) = - \frac{1}{K} \sum_{i=1}^K \log \frac{\exp(S_C(\mathbf{x}_i, \mathbf{y}_i) / \tau)}{\sum_{j}^K \exp(S_C(\mathbf{x}_i, \mathbf{y}_j) / \tau)}.
+\end{equation}
+where $\mathbf{X}$ and $\mathbf{Y}$ is an embedded batch of galaxy spectra and images respectively, $K$ is the batch size,
+$S_C$ is the cosine similarity function, and $\tau$ is a smoothing parameter (often called the temperature).
+Indices $i$ correspond to positive pairs (embedded image-spectra pairs which correspond to the same galaxy) and $j$ corresponds
+to negative pairs (embedded image-spectra pairs which correspond to different galaxies).
+Formerly, $S_C$ defined in Equation~\eqref{eq:cosine-similarity}
+
+\begin{equation}
+\label{eq:cosine-similarity}
+    S_C(\mathbf{x}_i, \mathbf{y}_j) = \frac{(\mathbf{x}_i)^{T} \mathbf{y}_j}{ ||\mathbf{x}_i||_{2} \hspace{0.2em} ||\mathbf{y}_j||_{2}}
+    = \cos(\theta_{i,j})
+\end{equation}
+is the normalised dot product between any two embeddings, which is equivalent to the cosine of the angle $\theta_{i,j}$ between the
+two embeddings.
+The similarity measure $S_C$ is bounded in the range [-1, 1], and by construction, for any two embeddings which refer to
+the same galaxy then $S_C(\mathbf{x}_i, \mathbf{y}_i) = 1$ given that $\theta_{i,i} = 0$ $\forall i$.
+
+~\cite{astroclip} use a novel transformer based architecture for the spectrum embedder as opposed to the more traditional
+1D convolutional architecture which is typically used for spectral data, and they pre-train it through a self-supervised
+mask filling task.
+The image embedder is a standard vision transformer ViT~\citep{dosovitskiy2021} architecture which is pre-trained using
+the DINO v2 self-supervised learning framework~\citep{oquab2024}.
+We refer the reader to the original paper for more details on the pre-training and see XXXX for details on the dataset
+used for pre-training (as we use the same dataset for our reproduction).
+Following the training, the two embedders are aligned under the InfoNCE loss, using a large batch size of 1024 to ensure
+that there is a significant number of negative samples per batch.
+The shared embedding dimensionality is $\mathbf{z} \in \mathbb{R}^{512}$.
+
+\subsection{Key Results}\label{subsec:original-paper-key-results}
+To demonstrate the effectiveness of their AstroCLIP embeddings,~\cite{astroclip} evaluate their embeddings on a variety
+of downstream tasks: (1) in-modal and cross-modal retrieval of galaxy spectra and images through cosine similarity; (2)
+zero-shot (k-NN regression) and few-shot (supervised training of an additional MLP on the embeddings) in-modal redshift
+predictions; (3) zero-shot and few-shot in-modal galaxy property (stellar mass, metallicity, age and star formation rate)
+predictions.
+
+The similarity search successfully extracts visually similar spectra and images.
+The zero-shot redshift estimation were performed by predicting the redshift of a galaxy using the redshift of its nearest
+16 embedded neighbours of the same modality.
+Their zero-shot image redshift predictions gave an $R^{2}$ metric (coefficient of determination) of 0.78 (with predicted
+redshift plotted against true redshift), and their zero-shot spectrum redshift predictions gave an $R^{2}$ metric of 0.98.
+The image results outperformed the supervised baseline models (ResNet18 and MLP) as well as the state-of-the-art
+self-supervised models for galaxy images~\citep{stein2021}.
+In this paper we attempt to reproduce the metrics listed above, but we refer the reader to the original paper for a
+more detailed analysis of the results.

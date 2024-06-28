@@ -1,45 +1,14 @@
 %! Author = adnansiddiquei
 %! Date = 04/06/2024
 
-\section{Method}\label{sec:method}
-Assuming that galaxy spectra and galaxy images can be viewed as different physical representations of the same underlying
-object, reasonably, one can assume that there is enough mutual information within the two modalities to be able to effectively
-embed them into a shared latent space.
-As such, the objective of this piece of work was to reproduce the results of the original AstroCLIP paper~\citep{astroclip}
-which implemented a multi-modal contrastive learning approach to embed galaxy spectra and galaxy images into a shared embedding
-space.
-This was done using 2 pretrained convolutional spectrum and image embedders, and then fine-tuning the model using contrastive
-learning under the InfoNCE loss~\citep{oord2019}, as per Equation~\eqref{eq:infonce}, to learn the low-dimensional
-embedding space for the two modalities
-
-\begin{equation}
-\label{eq:infonce}
-    \mathcal{L}(\mathbf{X}, \mathbf{Y}) = - \frac{1}{K} \sum_{i=1}^K \log \frac{\exp(S_C(\mathbf{x}_i, \mathbf{y}_i) / \tau)}{\sum_{j}^K \exp(S_C(\mathbf{x}_i, \mathbf{y}_j) / \tau)}.
-\end{equation}
-where $\mathbf{X}$ and $\mathbf{Y}$ is an embedded batch of sets of galaxy spectra and images, $K$ is the size of the
-batch, $S_C$ is the cosine similarity function, and $\tau$ is a smoothing parameter (often called the temperature).
-Indices $i$ correspond to positive pairs (embedded image-spectra pairs which correspond to the same galaxy) and $j$ corresponds
-to negative pairs (embedded image-spectra pairs which correspond to different galaxies).
-Formerly, $S_C$ defined in Equation~\eqref{eq:cosine-similarity}
-
-\begin{equation}
-\label{eq:cosine-similarity}
-    S_C(\mathbf{x}_i, \mathbf{y}_j) = \frac{(\mathbf{x}_i)^{T} \mathbf{y}_j}{ ||\mathbf{x}_i||_{2} \hspace{0.2em} ||\mathbf{y}_j||_{2}}
-    = \cos(\theta_{i,j})
-\end{equation}
-
-is the normalised dot product between any two embeddings, where $\theta_{i,j}$ is the angle between the two embeddings.
-The similarity measure $S_C$ is bounded in the range [-1, 1], and by construction, for any two embeddings which refer to
-the same galaxy then $S_C(\mathbf{x}_i, \mathbf{y}_i)) = 1$ given that $\theta_{i,i} = 0 \hspace{0.25em} \forall i$.
-
-\subsection{Data}\label{subsec:data}
+\section{Data}\label{sec:data}
 We use the dataset as provided exactly by~\cite{astroclip}, with minor adjustments.
 The dataset contains 197,976 galaxy spectra and image pairs, along with their redshift measurements.
 The galaxy spectra were taken from the Dark Energy Spectroscopic Instrument (DESI) Early Data Release~\citep{desiearly2023}
 and the galaxy images were taken from the DESI Legacy Survey~\citep{desilegacy2018}.
 We summarise the key pre-processing steps relating to the data below.
 
-\subsubsection{DESI Legacy Survey Images}\label{subsubsec:images}
+\subsection{DESI Legacy Survey Images}\label{subsec:images}
 The galaxy image dataset was curated by~\cite{stein2022} from the DESI Legacy Survey Data Release 9\footnote{https://www.legacysurvey.org/dr9/description/},
 we refer the reader to~\cite{stein2022, astroclip} for a more comprehensive overview of the dataset and its curation, but the
 key points are summarised here.
@@ -47,7 +16,7 @@ These images were taken by 3 different telescopes, with each telescope focusing 
 and wavelength range, creating a survey of the sky with a sky coverage of 14,000 $deg^{2}$, at a pixel resolution of 0.262 arcseconds,
 across the g (green: $4770 \si{\angstrom}$), r (red: $6231 \si{\angstrom}$), and z (infrared: $9134 \si{\angstrom}$) wavelength
 bands\footnote{https://skyserver.sdss.org/dr1/en/proj/advanced/color/sdssfilters.asp}.
-The Tractor\footnote{https://github.com/dstndstn/tractor} is used to probabilistically identify and infer properties such
+The Tractor is used to probabilistically identify and infer properties such
 as morphological classification of sources within the survey.
 This creates a Tractor catalogue of each identified source, and a sweep catalogue is a subset of this information.
 ~\cite{stein2022} then filter the dataset as follows: they drop any source that were identified as a star in the sweep catalogues
@@ -63,14 +32,14 @@ random horizontal and vertical flips as well as adding Gaussian noise.
 The 256x256 pixel images all cover more sky than the source being analysed, so we follow~\cite{stein2022} in center
 cropping the images to the central 96x96 pixels, adverse to the 144x144 cut-out performed by~\cite{astroclip}.
 The choice of the 96x96 cut-out as opposed to a 144x144 cut-out is primarily due to the pre-training of our image embedder
-as explained in Section~\eqref{subsubsec:image-embedder}.
+as explained in Section~\eqref{subsec:image-embedder}.
 The images are then standardised, ensuring that each channel (g, r, z) of each image had a mean
 of 0 and a standard deviation of 1.
 The Gaussian noise $\mathcal{G}(0, 0.03)$ was added on top of this standardised data such that each channel was noised
 proportionately.
 
 
-\subsubsection{DESI Early Data Release Spectra}\label{subsubsec:spectra}
+\subsection{DESI Early Data Release Spectra}\label{subsec:spectra}
 The spectra were extracted from the DESI Early Data Release~\citep{desiearly2023} and only those that were successfully
 cross-matched with the galaxy images were kept.
 The spectra ranged the wavelength range of $[3600 \si{\angstrom}, 9824 \si{\angstrom}]$, with a resolution of 7781 pixels per spectrum.
@@ -90,18 +59,18 @@ This meant that the noise added to the spectra at any given wavelength was propo
 the given wavelength, which complemented the fact that some wavelengths naturally had more variance than others.
 Finally, $\gamma$ was set to 0.3.
 
-\subsubsection{Redshift measurements}\label{subsubsec:redshift}
+\subsection{Redshift measurements}\label{subsec:redshift}
 The redshift measurements utilised were the catalog-reported measurements and were compiled and provided directly with the
 dataset by~\cite{astroclip}.
 
-\subsubsection{Further Pre-processing}\label{subsubsec:pre-processing}
+\subsection{Further Pre-processing}\label{subsec:pre-processing}
 The data was pre-processed further to remove outliers and ensure data was sensible to improve training dynamics.
 We dropped any galaxies with a redshift outside the range $[0, 0.8]$ and also dropped any galaxies which had every element
 in their spectra equal to 0 (given that they were clearly erroneous).
 This resulted in removing a further 380 samples from the dataset, leaving a total of 197,596 galaxy spectra and image pairs.
 Our redshift range of $[0, 0.8]$ was larger than the range of $[0, 0.6]$ used by~\cite{astroclip} in their final results.
 
-\subsection{AstroCLIP Implementation}\label{subsec:astroclip-implementation}
+\section{AstroCLIP Implementation}\label{sec:astroclip-implementation}
 Our AstroCLIP model was implemented using a pretrained 2D convolutional image embedder courtesy of~\cite{stein2021}
 and a pretrained 1D spectrum embedder courtesy of~\cite{liang2023}.
 These were placed into our unified AstroCLIP model and then fine-tuned (with all the weights set as trainable) using
@@ -113,7 +82,7 @@ embedding for their final results.
 Below we give a brief overview of the pretraining strategies for the image and spectrum embedders, but for a
 comprehensive report we refer the reader to the original papers.
 
-\subsubsection{Image Embedder}\label{subsubsec:image-embedder}
+\subsection{Image Embedder}\label{subsec:image-embedder}
 \cite{stein2021} trained a galaxy image embedder using a self-supervised method for the purposes of image based similarity search.
 The image embedder was trained via the MoCo v2 framework~\citep{moco2020, mocov22020} on a sample of 42 million galaxies
 from the DESI Legacy Survey Data Release 9~\citep{desilegacy2018}.
@@ -132,7 +101,7 @@ This yielded between 27.7M and 28.8M trainable parameters depending on the outpu
 \cite{astroclip} pre-train a vision transformer model for their image embedder, we refer the reader to the original paper
 for a more detailed discussion on the architecture and pre-training strategy for this.
 
-\subsubsection{Spectrum Embedder}\label{subsubsec:spectrum-embedder}
+\subsection{Spectrum Embedder}\label{subsec:spectrum-embedder}
 \cite{liang2023} trained a galaxy spectrum autoencoder using galaxy spectra from the DESI Early Data Release~\citep{desiearly2023},
 focusing primarily on the Bright Galaxy Survey (BGS) (for precise details on the spectral dataset used, see the original paper).
 The autoencoder architecture, named SPENDER, was proposed by~\cite{melchior2022} and encoded the spectra into a 6-dimensional
@@ -152,7 +121,7 @@ This yielded between 3.1M to 3.3M trainable parameters, depending on the output 
 \cite{astroclip} once again use a transformer architecture for their spectrum encoder, and we refer the reader to the original
 paper for a more detailed discussion on the architecture and pre-training strategy for this.
 
-\subsection{Model Training}\label{subsec:training}
+\section{Model Training}\label{sec:training}
 \begin{figure}[t]
     \centering
     \makebox[\textwidth]{\includegraphics[width=0.9\textwidth]{figures/train_batch_size}}
@@ -194,7 +163,7 @@ The embedding dimensionality was varied through the range $[8, 16, 32, 64, 128, 
 Through some exploratory analysis, we fixed a few hyperparameters: batch size of 512; learning rate of $5e^{-4}$; a weight
 decay of $1e^{-4}$; and a temperature parameter in the InfoNCE loss of 0.07; and only varied the embedding dimensionality.
 One small aspect of note is that the batch size was not consistent throughout training, the pre-processing mentioned in
-Section~\eqref{subsubsec:pre-processing} was performed on the fly on each batch of data as and when randomly sampled by
+Section~\eqref{subsec:pre-processing} was performed on the fly on each batch of data as and when randomly sampled by
 the DataLoader during training.
 This meant that there were small fluctuations in the batch size, and for completeness we show the batch size for each batch
 throughout the training of the AstroCLIP models in Figure~\eqref{fig:train_batch_size}.

@@ -1,4 +1,44 @@
 %! Author = adnansiddiquei
 %! Date = 04/06/2024
 
-\section{Introduction}
+\section{Introduction}\label{sec:introduction}
+The size of scientific datasets, particularly in the field of astronomy, has been growing at an ever increasing rate
+over the last couple of decades.
+Spectroscopic surveys such as the Sloan Digital Sky Survey (SDSS)~\citep{york2000} and more recently the Dark Energy
+Spectroscopic Instrument (DESI)\footnote{https://www.desi.lbl.gov/} have been collating millions of galaxy spectra, while photometric
+surveys such as the DESI Legacy Survey~\citep{desilegacy2018} has been imaging large portions of the sky extracting millions
+of sources.
+These datasets are used for a variety of scientific purposes, from understanding the large scale structure of the universe;
+estimating galaxy properties such as redshift, stellar mass, and star formation rate; to identifying rare objects such as
+quasars and supernovae; and many more.
+However, the growing data set size and diversity makes much of this difficult and traditional methods are often
+limited by the quality of the data and its associated labels.
+One such example is morphological classification, a decade ago we had crowdsourced campaigns such as Galaxy Zoo 2~\citep{willet2013}
+which classified approximately 300,000 galaxies, we now have tools such as Tractor\footnote{https://github.com/dstndstn/tractor}
+which can probabilistically identify sources from photometric surveys and infer properties such as morphological classification.
+More recently, given the unavailability of high quality labels, unsupervised and self-supervised learning methods have been
+gaining popularity to tackle these sorts of tasks.
+For example,~\cite{liang2023} train a 1D convolutional spectrum autoencoder on spectral data from the DESI Early Data
+Release~\citep{desiearly2023} Bright Galaxy Survey for the purposes of outlier detection.
+Similarly,~\cite{stein2021} train a 2D convolutional image embedder using a self-supervised technique on galaxy images
+from the DESI Legacy Survey for the purposes of similarity search.
+They use the Moco v2 self-supervised learning framework~\citep{moco2020, mocov22020}, which is a technique to learn image embeddings
+by maximising the similarity of the embedding between augmented views of the same image, and minimising the similarity between
+the embedding of different images.
+~\cite{hayat2021} also use this technique to train a 2D convolutional model to estimate distances to galaxies from their
+photometric images, and also show that the learned embeddings can be fine-tuned very effectively for redshift estimation.
+They also show two important conclusions, (1) self-supervised pre-training followed by supervised fine-tuning can achieve
+the same performance as supervised training from scratch, whilst requiring significantly fewer labels and (2) fine-tuning
+the self-supervised pre-trained model on the entire Main Galaxy Sample of the SDSS outperforms state-of-the-art supervised
+learning methods.
+These conclusions are not uncommon in the field of machine learning outside of astronomy
+(NLP:~\cite{devlin2019, radford2018}; Medical Imaging:~\cite{shin2016}) and demonstrates the power of transfer learning
+and the importance of foundation models for astronomical datasets.
+
+However, as of yet most of these self-supervised learning methods have only been applied to a single modality despite
+promising results in contrastive language-image pre-training~\citep{radford2021}.
+~\cite{astroclip} pioneer on this front by proposing a multi-modal contrastive learning approach to embed galaxy spectra
+and galaxy images into a shared low-dimensional latent space, and in this paper we aim to reproduce their results.
+Given the multi-modal nature of astronomical datasets, a useful astronomical foundation model should be able to embed
+the varying views of the same object effectively into a shared latent space, allowing for in-modal and cross-modal downstream
+application through zero-shot or few-shot learning.
