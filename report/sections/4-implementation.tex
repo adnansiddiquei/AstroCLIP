@@ -29,25 +29,15 @@ The final 128 unit layer was adjusted as required to produce the output dimensio
 weights and biases were initiated as per the pretrained model.
 This yielded between 27.7M and 28.8M trainable parameters depending on the output dimensionality of the model.
 
-\cite{astroclip} pre-train a vision transformer model for their image embedder, we refer the reader to the original paper
-for a more detailed discussion on the architecture and pre-training strategy for this.
-
 \subsection{Spectrum Embedder}\label{subsec:spectrum-embedder}
 \cite{liang2023} trained a galaxy spectrum autoencoder using galaxy spectra from the DESI Early Data Release~\citep{desiearly2023},
 focusing primarily on the Bright Galaxy Survey (BGS) (for precise details on the spectral dataset used, see the original paper).
 The autoencoder architecture, named SPENDER, was proposed by~\cite{melchior2022} and encoded the spectra into a 6-dimensional
 embedding space.
-For our AstroCLIP model, we used the encoder part of the SPENDER model which consisted of a series of 1D convolutional layers
-followed by a series of fully-connected layers to bring the dimensionality down to 6.
-We reduced the fully-connected layers to 3 layers with 256, $D_{-1}$ and $D_{out}$ units respectively, for any desired
-output dimensionality $D_{out}$.
-The first 2 fully-connected layers in the pre-trained SPENDER encoder originally had a dimensionality of 256 and 128 units
-and as such, for $D_{out} \in [8, 16, 32, 64, 128]$, we retained $D_{-1}=128$ and so the weights and biases of the
-first 2 fully-connected layer were retained with the output layer being initialised from a Gaussian distribution.
-For $D_{out} \in [256, 512]$, $D_{-1}$ was set to 256 and the entire fully-connected part of the model was retrained
-from Gaussian initialisation.
-The convolutional layers were initialised from the pre-trained weights of the SPENDER model.
+For our AstroCLIP model, we used the encoder part of the SPENDER model which consisted of 3--1D convolutional blocks
+followed by 5 fully-connected layers to bring the dimensionality down to 6 (units per layer: $[256, 128, 64, 32, 6]$).
+We reduced the fully-connected layers to 3 layers with $[256, 128, D_{out}]$ units respectively, for any desired
+output dimensionality $D_{out} \leq 128$, and $[256, 256, D_{out}]$ for $D_{out} > 128$.
+All weights and biases were retained for the convolutional layers and all weights and biases that could be retained for the
+fully-connected layers were retained, the rest were reinitialised from a normal distribution.
 This yielded between 3.1M to 3.3M trainable parameters, depending on the output dimensionality of the model.
-
-\cite{astroclip} once again use a transformer architecture for their spectrum encoder, and we refer the reader to the original
-paper for a more detailed discussion on the architecture and pre-training strategy for this.
