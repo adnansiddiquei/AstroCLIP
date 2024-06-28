@@ -43,7 +43,8 @@ the `cache_dir` once it has been downloaded;
 - The `pretrained_image_encoder` key defines the filename of the pretrained image encoder, this must be stored in
 the `cache_dir` as well, once it has been downloaded;
 
-## Downloading the dataset
+## Training AstroCLIP
+### 1. Download the dataset
 The AstroCLIP model is trained on a dataset of 197,976 galaxy image-spectra pairs, as provided by
 [Parker et al. (2024)](https://arxiv.org/abs/2310.03024).
 The multi-band (g,r,z) images were prepared by [Stein et al. (2021)](https://github.com/georgestein/ssl-legacysurvey),
@@ -58,7 +59,7 @@ python scripts/download_desi_dataset.py --config=local
 pass in whichever config you wish to use, in this case `local` is used.
 This will download the dataset to the directory specified in the `local.cache_dir` key of `config.yaml`.
 
-## Downloading the pretrained models
+### 2. Download the pretrained models
 AstroCLIP uses two pretrained models for the image and spectrum encoders, both of these pretrained encoders differ from
 the ones used in the original paper.
 The pretrained spectrum encoder was acquired from the works of [Liang, Melchior et al (2023)](https://github.com/pmelchior/spender)
@@ -71,8 +72,18 @@ The pretrained image encoder was taken from the works of [Stein et al. (2021)](h
 and can be acquired by following the instructions on the linked repository. Download the `resnet50.ckpt` file from the
 Globus endpoint provided by Stein, and place it into the cache_dir.
 
-## Training the AstroCLIP model
-The AstroCLIP model can be trained by running:
+### 3. Generate the spectral standard deviations
+Run the following script:
+```bash
+python scripts/compute_observed_spectra_std_dev.py --config=local
+````
+to generate `/{output_dir}/observed_spectra_std_dev.pt`, which is a 7781-length tensor of the standard deviations of the
+training set spectra at each of the 7781 wavelength bins.
+This is used to scale the noise added to each bin of each spectra during training.
+See Section (3.2) of the report for more details on this.
+
+### Train the Model
+Then to train the model, run:
 ```bash
 python scripts/train_astroclip.py --config=local --jobid=00001 --ckptdir=astroclip_ckpt_00001 --hparams=h01
 ````
@@ -92,17 +103,32 @@ python scripts/train_astroclip.py --config=local ... --no-wandb
 - `--ckptdir` is the name of the directory to store the pytorch Lightning model checkpoints, this directory will be
 created inside the `local.output_dir` directory specified in the `config.yaml` file;
 - `--hparams` sets the hyperparameters for this run, these are set in the `hyperparameters.yaml` file and
-the `h01` hyperparameters are the hyperparameters used in this paper.
+the `h01` hyperparameters are the hyperparameters used in this paper for the 128-dimensional embedding space model.
 
-### Running on a High Performance Computing Cluster (HPC)
+### Training on a High Performance Computing Cluster (HPC)
 See the [`scripts/slurm`](scripts/slurm) directory for the slurm scripts used to run the AstroCLIP model on the Cambridge University HPC.
 They are given as used exactly in producing the results in this paper, for the `as3438` HPC user and so will need to be
 amended as required, to work on another HPC or user.
 The scripts also assume that poetry was used for the environment set up, but this can be amended as necessary.
 
+There are two scripts in the directory, one for the CPU nodes to download the dataset, and one for the GPU nodes to train
+the model.
+Use a SLURM job to download the dataset as it is a large file and takes some time.
+Use `scp` to copy over the pre-trained image and spectrum models to the `cache_dir` on the HPC.
+Likewise, use `scp` to copy over `/{output_dir}/observed_spectra_std_dev.pt` to `output_dir` on the HPC.
+Then you can run the training script.
+
 ## Downstream tasks
-See the `downstream_tasks/` folder for the scripts and notebooks used to generate the results and plots in the paper
+See the [`results/downstream_tasks/`](results/downstream_tasks) folder for the scripts and notebooks used to generate the results and plots in the paper
 for the downstream tasks.
+
+## Training Statistics
+See the [`results/training`](results/training) folder for the scripts, notebooks and output logs from Weights and Biases
+used to generate the training related statistics and plots in the paper.
+
+## AstroCLIP Model Weights
+The Lightning model checkpoints for all trained AstroCLIP models used in the paper are available on request.
+They have not been made available publicly anywhere, given that this an assessed piece of work.
 
 ## Acknowledgements
 I would primarily like to thank [Miles Cranmer](https://github.com/MilesCranmer) for his guidance on this project.
