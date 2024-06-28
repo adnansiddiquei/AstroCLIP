@@ -14,12 +14,29 @@ import yaml
 
 
 def freeze_all_layers(model: nn.Module):
+    """
+    Freeze all layers in a model.
+
+    Parameters
+    ----------
+    model : nn.Module
+        The model to freeze.
+    """
     for param in model.parameters():
         param.requires_grad = False
 
 
-# Function to unfreeze a specific layer by name
 def unfreeze_layer_by_name(model: nn.Module, layer_name: str):
+    """
+    Unfreeze a specific layer by name.
+
+    Parameters
+    ----------
+    model : nn.Module
+        The model containing the layer to unfreeze.
+    layer_name : str
+        The name of the layer to unfreeze.
+    """
     # Check if the layer name exists in the model
     if hasattr(model, layer_name):
         layer = getattr(model, layer_name)
@@ -30,41 +47,22 @@ def unfreeze_layer_by_name(model: nn.Module, layer_name: str):
 
 
 def set_trainable_layers(model: nn.Module, layer_names: list):
+    """
+    Set specific layers in a model to be trainable, and freeze all other layers.
+
+    Parameters
+    ----------
+    model : nn.Module
+        The model containing the layers to set as trainable.
+    layer_names : list
+        A list of strings containing the names of the layers to set as trainable.
+    """
     # Freeze all layers
     freeze_all_layers(model)
 
     # Unfreeze the specified layers
     for layer_name in layer_names:
         unfreeze_layer_by_name(model, layer_name)
-
-
-def create_1d_gaussian_kernel(sigma: float, kernel_size: int) -> torch.Tensor:
-    """
-    Create a 1D Gaussian kernel.
-
-    Parameters
-    ----------
-    sigma : float
-        The standard deviation of the Gaussian.
-    kernel_size : int
-        The size of the kernel. It should be an odd number.
-
-    Returns
-    -------
-    torch.Tensor
-        The 1D Gaussian kernel.
-    """
-    assert kernel_size % 2 == 1, 'Kernel size should be an odd number.'
-
-    # Create a tensor of size 'size' with values from -size//2 to size//2
-    x = torch.arange(
-        -int(kernel_size / 2), int(kernel_size / 2) + 1, dtype=torch.float32
-    )
-
-    kernel = torch.exp(-(x**2) / (2 * sigma**2))  # compute the 1D Gaussian filter
-    kernel = kernel / kernel.sum()  # normalise the kernel
-
-    return kernel
 
 
 def copy_weights(source: nn.Module, target: nn.Module) -> None:
@@ -154,7 +152,9 @@ class SpectralStdDevCalculator:
         augmentations: nn.Sequential = None,
     ):
         """
-        Compute the standard deviation of the observed spectra.
+        Compute the standard deviation of the observed spectra at each wavelength bin.
+
+        See Section (3.2) of the report for more details on what this is.
 
         Parameters
         ----------
@@ -214,6 +214,18 @@ class SpectralStdDevCalculator:
 
 
 def format_axes(ax: Axes | list[Axes], **kwargs):
+    """
+    Format the axes of a matplotlib plot.
+
+    This function styles all matplotlib plots to a common styling.
+
+    Parameters
+    ----------
+    ax : Axes | list[Axes]
+        The axes to format.
+    kwargs : dict
+        Additional keyword arguments to pass to the function.
+    """
     # This handles if two axes are passed in, there is some default styling always done to these
     if isinstance(ax, list) and len(ax) == 2:
         format_axes(
@@ -272,6 +284,18 @@ def format_axes(ax: Axes | list[Axes], **kwargs):
 
 
 def save_fig(output_dir: str, name: str, **kwargs):
+    """
+    Save a figure to a file.
+
+    Parameters
+    ----------
+    output_dir : str
+        The directory to save the figure to.
+    name : str
+        The name of the file to save the figure to.
+    kwargs : dict
+        Additional keyword arguments to pass to the function.
+    """
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -282,7 +306,24 @@ def save_fig(output_dir: str, name: str, **kwargs):
     print('Saved figure to: ', filename)
 
 
-def load_config(config_header: str, hparams_header: str = None):
+def load_config(
+    config_header: str, hparams_header: str = None
+) -> dict | tuple[dict, dict]:
+    """
+    Load the config file and hyperparameters.
+
+    Parameters
+    ----------
+    config_header : str
+        The header of the config file to load. This will generally either be 'local' or 'hpc'.
+    hparams_header : str, optional
+        The header of the hyperparameters file to load.
+
+    Returns
+    -------
+    dict | tuple[dict, dict]
+        The config file and hyperparameters file.
+    """
     cwd = os.path.dirname(os.path.realpath(__file__))
 
     with open(f'{cwd}/../config.yaml', 'r') as file:
@@ -311,4 +352,17 @@ def load_config(config_header: str, hparams_header: str = None):
 
 
 def remove_empty_keys(data: dict) -> dict:
+    """
+    Remove empty keys from a dictionary.
+
+    Parameters
+    ----------
+    data : dict
+        The dictionary to remove empty keys from.
+
+    Returns
+    -------
+    dict
+        The dictionary with the empty keys removed.
+    """
     return {k: v for k, v in data.items() if v is not None}

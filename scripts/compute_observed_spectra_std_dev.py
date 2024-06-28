@@ -9,7 +9,7 @@ import os
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from astroclip.transforms import ExtractKey, Permute, Standardize
+from astroclip.transforms import ExtractKey, Permute, Standardise
 import matplotlib.pyplot as plt
 import argparse
 
@@ -47,7 +47,7 @@ def main():
     transforms = nn.Sequential(
         ExtractKey('spectrum'),
         Permute([0, 2, 1]),
-        Standardize(return_mean_and_std=False),
+        Standardise(return_mean_and_std=False),
     )
 
     dataloader = DataLoader(dataset['train'], batch_size=1024, num_workers=4)
