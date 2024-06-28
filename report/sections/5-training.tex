@@ -50,7 +50,8 @@ throughout the training of the AstroCLIP models in Figure~\eqref{fig:train_batch
 As can be seen on the figure, the batch size fluctuates very little and generally remains between 502 and 510.
 This fluctuating batch size was intentionally left in the training process as it's effects were negligible and would likely
 only have a positive effect through the stochasticity it introduces.
-The number of epochs required to reach the lowest validation loss, and the corresponding loss is detailed in Figure~\eqref{fig:val_loss}.
+Figure~\eqref{fig:train_val_loss} shows the training and validation loss for each model throughout the 75 epochs, and
+Figure~\eqref{fig:val_loss} details the lowest validation loss achieved for each model and the corresponding epoch.
 Whilst there is a clear pattern in the training loss where the more flexible model appears to be able to achieve the
 lowest loss, the same was not true for the validation loss with no clear pattern emerging.
 However, it is important to note that a thorough sweep of hyperparameters was not performed, and so it is possible that

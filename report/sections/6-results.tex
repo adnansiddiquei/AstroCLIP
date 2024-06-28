@@ -3,7 +3,7 @@
 
 \section{Results}\label{sec:results}
 To assess and demonstrate the performance of our AstroCLIP model, we reproduce a subset of the downstream tasks from
-the original implementation.
+the original implementation by ~\cite{astroclip}.
 The models with the lowest validation loss for each embedding dimensionality (as shown in Figure~\eqref{fig:val_loss})
 were selected for evaluation.
 The held-out validation set (composing of 39,599 of the 197,976 image-spectra pairs) was used to evaluate the performance
@@ -20,7 +20,7 @@ Notation used in this section intentionally follows that of the original paper f
     The y-axis shows the predicted redshift (the average of the 16 closest neighbours in terms of Euclidean distance) and the x-axis shows the true redshift.
     The dashed line represents a perfect prediction, and the $R^{2}$ of the fit is shown in the top left corner.
     $S_{kNN}(\mathbf{z}_{q}^{sp}, \mathbf{z}^{im})$ indicates the cross-modal prediction where a spectrums redshift was
-    predicted using its 16 closes image embedded neighbours.}
+    predicted using its 16 closest embeddings derived from galaxy images.}
     \label{fig:rkr}
 \end{figure}
 
@@ -29,13 +29,16 @@ Notation used in this section intentionally follows that of the original paper f
     \makebox[\textwidth]{\includegraphics[width=1\textwidth]{figures/r2_vs_embedding_dim}}
     \caption{Exactly the same results as shown in Figure~\eqref{fig:rkr}, but plotted more succinctly for all embedding
     dimensionalities, and all types of in-modal and cross-modal prediction types.
+    Each plot shows a prediction type (corresponding to one of the 4 plots in Figure~\eqref{fig:rkr}).
+    The x-axis is the embedding dimensionality and the y-axis is the $R^{2}$ value of the predictions.
+    There are exactly 7 points on each plot, one for each embedding dimensionality tested.
     The dashed lines show the best model for each prediction type.}
     \label{fig:r2_vs_embedding_dim}
 \end{figure}
 
 Figure~\eqref{fig:rkr} shows the zero-shot redshift predictions using k-NN regression on the learned embeddings for
-the best 128-dimensional embedding model.
-Both in-modal (spectrum to spectrum, image to image) and both cross-modal (spectrum to image, image to spectrum)
+the best 128-dimensional embedding model, for both in-modal (spectrum to spectrum, image to image) and cross-modal (spectrum to image,
+image to spectrum) prediction types.
 Figure~\eqref{fig:r2_vs_embedding_dim} then shows this same data in a more succinct manner for all embedding dimensionalities.
 These results demonstrate strong evidence that our AstroCLIP model is able to learn a meaningful representation of the
 data, as the redshift predictions are highly correlated with the true redshift values, even with low embedding dimensionality.
