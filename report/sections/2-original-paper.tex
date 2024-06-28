@@ -40,8 +40,8 @@ the same galaxy then $S_C(\mathbf{x}_i, \mathbf{y}_i) = 1$ given that $\theta_{i
 mask filling task.
 The image embedder is a standard vision transformer ViT~\citep{dosovitskiy2021} architecture which is pre-trained using
 the DINO v2 self-supervised learning framework~\citep{oquab2024}.
-We refer the reader to the original paper for more details on the pre-training and see XXXX for details on the dataset
-used for pre-training (as we use the same dataset for our reproduction).
+We refer the reader to the original paper for more details on the pre-training and see Section~\eqref{sec:data} for details
+on the dataset used for pre-training (as we use the same dataset for our reproduction).
 Following the training, the two embedders are aligned under the InfoNCE loss, using a large batch size of 1024 to ensure
 that there is a significant number of negative samples per batch.
 The shared embedding dimensionality is $\mathbf{z} \in \mathbb{R}^{512}$.

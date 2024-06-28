@@ -3,7 +3,8 @@
 
 \section{Data}\label{sec:data}
 We use the dataset as provided exactly by~\cite{astroclip}, with minor adjustments.
-The dataset contains 197,976 galaxy spectra and image pairs, along with their redshift measurements.
+The dataset contains 197,976 galaxy spectra and image pairs, along with their redshift measurements (split 80/20 train/validation
+with 158,377 train samples and 39,599 validation samples).
 The galaxy spectra were taken from the Dark Energy Spectroscopic Instrument (DESI) Early Data Release~\citep{desiearly2023}
 and the galaxy images were taken from the DESI Legacy Survey~\citep{desilegacy2018}.
 We summarise the key pre-processing steps relating to the data below.
@@ -20,15 +21,15 @@ The Tractor is used to probabilistically identify and infer properties such
 as morphological classification of sources within the survey.
 This creates a Tractor catalogue of each identified source, and a sweep catalogue is a subset of this information.
 ~\cite{stein2022} then filter the dataset as follows: they drop any source that were identified as a star in the sweep catalogues
-(Tractor identified a best-fit morphological model of point-spread function, which indicates star); and drop any sources
+(this is where Tractor identifies a best-fit morphological model of point-spread function, which indicates star); and drop any sources
 with a z-band magnitude ($mag_{z}$) larger than 20.
 Each remaining source is extracted through a 256x256 pixel cut-out centred on the source, in each of the (g, r, z) bands,
 yielding a total of 76,446,849 images.
-~\cite{astroclip} cross-match this dataset for their corresponding spectra from the DESI Early Data Release~\citep{desiearly2023}
+~\cite{astroclip} cross-match this dataset for their corresponding spectra from the DESI Early Data Release
 using the targetIDs associated with the sources, to yield a final dataset of 197,976 galaxy spectra and image pairs.
 
-We perform a variety of augmentations on the images including: a random horizontal and vertical shift; random rotation;
-random horizontal and vertical flips as well as adding Gaussian noise.
+We perform a variety of augmentations on the images including random horizontal and vertical shifts, flips and rotations,
+as well as adding Gaussian noise.
 The 256x256 pixel images all cover more sky than the source being analysed, so we follow~\cite{stein2022} in center
 cropping the images to the central 96x96 pixels, adverse to the 144x144 cut-out performed by~\cite{astroclip}.
 The choice of the 96x96 cut-out as opposed to a 144x144 cut-out is primarily due to the pre-training of our image embedder
@@ -44,20 +45,20 @@ The spectra were extracted from the DESI Early Data Release~\citep{desiearly2023
 cross-matched with the galaxy images were kept.
 The spectra ranged the wavelength range of $[3600 \si{\angstrom}, 9824 \si{\angstrom}]$, with a resolution of 7781 pixels per spectrum.
 As with the image data, the spectra were also standardised individually, to mean 0 and standard deviation 1, and then
-noise $(\epsilon_{sp}(\lambda))$ was added in the form of scaled Gaussian noise as given in Equation~\eqref{eq:spectrum-noise}.
+noise $\epsilon_{sp}(\lambda)$ was added in the form of scaled Gaussian noise as given in Equation~\eqref{eq:spectrum-noise}.
 
 \begin{equation}
 \label{eq:spectrum-noise}
     \epsilon_{sp}(\lambda) = \gamma \cdot \sigma_{sp}(\lambda) \cdot \mathcal{G}(0, 1)
 \end{equation}
-where $\epsilon_{sp}(\lambda)$ is the noise added to the spectrum at wavelength $\lambda$, $\gamma$ is a scaling factor
-which is the same for all wavelengths, $\sigma_{sp}(\lambda)$ is the standard deviation of the spectrum at wavelength $\lambda$,
+where $\epsilon_{sp}(\lambda)$ is the noise added to the spectrum at wavelength $\lambda$, $\gamma$ is a constant scaling factor,
+$\sigma_{sp}(\lambda)$ is the standard deviation of the spectrum at wavelength $\lambda$,
 and $\mathcal{G}(0, 1)$ is a standard Gaussian random variable.
 $\sigma_{sp}(\lambda)$ was computed for the training set such that $\sigma_{sp}(i)$ $(i \in [0, 7781])$ gave the standard
-deviation of all spectra measurements at the $i^{th}$ pixel.
+deviation of all 158,377 train spectra measurements at the $i^{th}$ pixel.
 This meant that the noise added to the spectra at any given wavelength was proportional to the variance of the spectra
-the given wavelength, which complemented the fact that some wavelengths naturally had more variance than others.
-Finally, $\gamma$ was set to 0.3.
+at the given wavelength, which complemented the fact that some wavelengths naturally had more variance than others.
+$\gamma$ was set to 0.3.
 
 \subsection{Redshift measurements}\label{subsec:redshift}
 The redshift measurements utilised were the catalog-reported measurements and were compiled and provided directly with the
@@ -67,5 +68,5 @@ dataset by~\cite{astroclip}.
 The data was pre-processed further to remove outliers and ensure data was sensible to improve training dynamics.
 We dropped any galaxies with a redshift outside the range $[0, 0.8]$ and also dropped any galaxies which had every element
 in their spectra equal to 0 (given that they were clearly erroneous).
-This resulted in removing a further 380 samples from the dataset, leaving a total of 197,596 galaxy spectra and image pairs.
+This resulted in removing a further XXX samples from the training dataset and XXX samples were dropped from the validation set.
 Our redshift range of $[0, 0.8]$ was larger than the range of $[0, 0.6]$ used by~\cite{astroclip} in their final results.
