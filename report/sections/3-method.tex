@@ -152,7 +152,7 @@ This yielded between 3.1M to 3.3M trainable parameters, depending on the output 
 \cite{astroclip} once again use a transformer architecture for their spectrum encoder, and we refer the reader to the original
 paper for a more detailed discussion on the architecture and pre-training strategy for this.
 
-\subsection{Training}\label{subsec:training}
+\subsection{Model Training}\label{subsec:training}
 \begin{figure}[t]
     \centering
     \makebox[\textwidth]{\includegraphics[width=0.9\textwidth]{figures/train_batch_size}}
@@ -207,4 +207,3 @@ lowest loss, the same was not true for the validation loss with no clear pattern
 However, it is important to note that a thorough sweep of hyperparameters was not performed, and so it is possible that
 a different set of hyperparameters (such as stronger regularisation on the more flexible models, to prevent over-fitting)
 could have yielded different results (lower validation loss for the more flexible models).
-The models with the lowest validation loss for each embedding dimensionality were selected for evaluation in Section~\eqref{sec:results}.
