@@ -3,10 +3,16 @@ This is a reproduction of the AstroCLIP paper by [Parker et al. (2024)](https://
 authors' codebase at [https://github.com/PolymathicAI/AstroCLIP](https://github.com/PolymathicAI/AstroCLIP).
 
 AstroCLIP is a cross-modal, self-supervised foundation model for multi-band galaxy images and optical spectra.
-The model creates a shared 128-dim embedding space which discovers and encodes physically meaningful properties of the
+The model creates a shared low-dimensional embedding space which discovers and encodes physically meaningful properties of the
 galaxies.
 This embedding can be used for both zero-shot and few-shot predictions on a variety of downstream tasks such as redshift
 estimation and similarity search.
+
+This repository reproduces the AstroCLIP model using pre-trained image and spectrum encoders from related works, and
+trains the model on the dataset provided by [Parker et al. (2024)](https://arxiv.org/abs/2310.03024).
+The original AstroCLIP implementation by [Parker et al. (2024)](https://arxiv.org/abs/2310.03024) embeds the images and
+spectra into a 512-dimensional space, in this reproduction, we create models to embed the images and spectra into a
+a range of low-dimensional spaces: 8, 16, 32, 64, 128, 256, 512.
 
 ## Environment setup
 This repo uses conda and/or poetry for managing the environment.
@@ -17,7 +23,7 @@ conda activate astroclip_env
 poetry install
 ```
 
-If using poetry to set up the environment, then run the following command:
+If using poetry to set up the environment, then simply run the following command:
 ```bash
 poetry install
 ```
@@ -32,8 +38,8 @@ This repository contains a config file [`config.yaml`](config.yaml) which contai
 the scripts utilised in this repository. The config file has been left as is from the original training of this model,
 as an example of what it should look like, so feel free to amend it as necessary for you own system.
 
-The first level header defines a new system, in our case `local` config was used for testing on a local machine and `hpc`
-was used for training on the Cambridge University High Performance Computing Cluster.
+The first level key is used to define all the locations that you will run the code on. In our case, we have `local` and `hpc`
+for our local machine and the Cambridge University High Performance Computing Cluster.
 
 - The `cache_dir` key is used to define where the scripts load data from (dataset, pretrained models);
 - The `output_dir` key is used to define where the scripts output results (trained models, logs, etc.);
@@ -70,7 +76,7 @@ python scripts/download_pretrained_spectrum_encoder.py --config=local
 which will download the pretrained spectrum encoder to the directory specified in the `local.cache_dir` key of `config.yaml`.
 The pretrained image encoder was taken from the works of [Stein et al. (2021)](https://github.com/georgestein/ssl-legacysurvey)
 and can be acquired by following the instructions on the linked repository. Download the `resnet50.ckpt` file from the
-Globus endpoint provided by Stein, and place it into the cache_dir.
+Globus endpoint provided by Stein, and place it into the `cache_dir`.
 
 ### 3. Generate the spectral standard deviations
 Run the following script:
@@ -82,7 +88,7 @@ training set spectra at each of the 7781 wavelength bins.
 This is used to scale the noise added to each bin of each spectra during training.
 See Section (3.2) of the report for more details on this.
 
-### Train the Model
+### 4. Train the Model
 Then to train the model, run:
 ```bash
 python scripts/train_astroclip.py --config=local --jobid=00001 --ckptdir=astroclip_ckpt_00001 --hparams=h01
@@ -116,7 +122,7 @@ the model.
 Use a SLURM job to download the dataset as it is a large file and takes some time.
 Use `scp` to copy over the pre-trained image and spectrum models to the `cache_dir` on the HPC.
 Likewise, use `scp` to copy over `/{output_dir}/observed_spectra_std_dev.pt` to `output_dir` on the HPC.
-Then you can run the training script.
+Then you can submit a job to run the training script.
 
 ## Downstream tasks
 See the [`results/downstream_tasks/`](results/downstream_tasks) folder for the scripts and notebooks used to generate the results and plots in the paper
@@ -128,7 +134,10 @@ used to generate the training related statistics and plots in the paper.
 
 ## AstroCLIP Model Weights
 The Lightning model checkpoints for all trained AstroCLIP models used in the paper are available on request.
-They have not been made available publicly anywhere, given that this an assessed piece of work.
+They have not been made publicly available given the assessed nature of this work.
+
+## Report
+The report and executive summary for this reproduction is available in the [`report`](report) folder.
 
 ## Acknowledgements
 I would primarily like to thank [Miles Cranmer](https://github.com/MilesCranmer) for his guidance on this project.
@@ -137,4 +146,4 @@ The dataset used in this paper was prepared entirely by [Parker et al. (2024)](h
 and the [`astroclip/legacy_survey.py`](astroclip/legacy_survey.py) file was taken from their repository to load the dataset.
 The pretrained spectrum encoder was acquired from the works of [Liang, Melchior et al (2023)](https://github.com/pmelchior/spender)
 and the pretrained image encoder was acquired from the works of [Stein et al. (2021)](https://github.com/georgestein/ssl-legacysurvey).
-The `ToRGB` function used for plotting the images was taken as is from [legacysurvey](https://github.com/legacysurvey/imagine).
+The `ToRGB` function used for plotting the images was taken as is (with minor modifications) from [legacysurvey](https://github.com/legacysurvey/imagine).
