@@ -2,7 +2,7 @@
 %! Date = 04/06/2024
 
 \section{Introduction}\label{sec:introduction}
-The size of scientific datasets, particularly in the field of astronomy, has been growing at an ever increasing rate
+The size of scientific datasets, particularly in the field of astronomy, has been growing at an ever-increasing rate
 over the last couple of decades.
 Spectroscopic surveys such as the Sloan Digital Sky Survey (SDSS)~\citep{york2000} and more recently the Dark Energy
 Spectroscopic Instrument (DESI)\footnote{https://www.desi.lbl.gov/} have been collating millions of galaxy spectra, while photometric
@@ -27,7 +27,7 @@ They use the Moco v2 self-supervised learning framework~\citep{moco2020, mocov22
 by maximising the similarity of the embedding between augmented views of the same image, and minimising the similarity between
 the embedding of different images.
 ~\cite{hayat2021} also use this technique to train a 2D convolutional model to estimate distances to galaxies from their
-photometric images, and further show that the learned embeddings can be fine-tuned very effectively for redshift estimation.
+photometric images, and further demonstrate that the learned embeddings can be fine-tuned very effectively for redshift estimation.
 They also show two important conclusions, (1) self-supervised pre-training followed by supervised fine-tuning can achieve
 the same performance as supervised training from scratch, whilst requiring significantly fewer labels; and (2) fine-tuning
 the self-supervised pre-trained model on the entire Main Galaxy Sample of the SDSS outperforms state-of-the-art supervised
@@ -37,7 +37,7 @@ These conclusions are not uncommon in the field of machine learning outside of a
 and the importance of foundation models for astronomical datasets.
 
 However, as of yet most of these self-supervised learning methods have only been applied to a single modality despite
-promising results in cross-modal contrastive learning, such as contrastive language-image pre-training CLIP~\citep{radford2021}.
+promising results in cross-modal contrastive learning outside of astronomy, such as contrastive language-image pre-training CLIP~\citep{radford2021}.
 ~\cite{astroclip} pioneer on this front by proposing a multi-modal contrastive learning approach to embed galaxy spectra
 and galaxy images into a shared low-dimensional latent space, and in this paper we aim to reproduce their results.
 Given the multi-modal nature of astronomical datasets, a useful astronomical foundation model should be able to embed
