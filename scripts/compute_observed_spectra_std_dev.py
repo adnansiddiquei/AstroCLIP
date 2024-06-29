@@ -64,15 +64,16 @@ def main():
     )
 
     # Plot and save the above tensor
-    fig, ax = plt.subplots(figsize=(10, 4))
+    fig, ax = plt.subplots(figsize=(10, 3))
 
     plt.plot(
         observed_spectra_std_dev.squeeze(),
         label='AstroCLIP Reproduction',
         linestyle='-',
     )
-    plt.xlabel('Spectrum Index')
-    plt.ylabel('Standard Deviation')
+    plt.xlabel(r'Spectrum Index $i$')
+    plt.ylabel(r'Standard Deviation $\sigma_{sp}(i)$')
+    plt.xlim(-50, 7781 + 50)
     format_axes(ax)
 
     save_fig(output_dir, 'observed_spectra_std_dev.png')
