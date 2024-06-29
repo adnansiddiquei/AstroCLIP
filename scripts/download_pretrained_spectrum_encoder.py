@@ -35,7 +35,7 @@ def main():
     sdss, model = spender.hub.load('desi_edr_galaxy', map_location='cpu')
 
     # save the model into the cache_dir
-    torch.save(model.encoder.state_dict(), f'{cache_dir}/spender.desi-edr.encoder2.pth')
+    torch.save(model.encoder.state_dict(), f'{cache_dir}/spender.desi-edr.encoder.pth')
 
 
 if __name__ == '__main__':
