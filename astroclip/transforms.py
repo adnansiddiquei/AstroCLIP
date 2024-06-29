@@ -1,10 +1,26 @@
+"""
+This module contains PyTorch nn.Module subclasses that apply various transforms to input Tensors.
+
+The transforms have been written to be as general as possible. However, they are generally intended
+for batches of spectra of shape (batch_size, 1, 7781) and batches of images of shape (batch_size, 3, 256, 256).
+
+Some of the transforms are very dataset specific, such as DropInvalidSpectra and DropOnRedshift.
+"""
+
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class Permute(nn.Module):
     def __init__(self, dims):
+        """
+        Permute the dimensions of a tensor.
+
+        Parameters
+        ----------
+        dims : list
+            A list of integers representing the new order of the dimensions.
+        """
         super(Permute, self).__init__()
         self.dims = dims
 
@@ -12,17 +28,16 @@ class Permute(nn.Module):
         return x.permute(*self.dims)
 
 
-class Reshape(nn.Module):
-    def __init__(self, shape):
-        super(Reshape, self).__init__()
-        self.shape = shape
-
-    def forward(self, x: torch.Tensor):
-        return x.view(*self.shape)
-
-
 class Squeeze(nn.Module):
     def __init__(self, dim):
+        """
+        Squeeze the tensor along a given dimension.
+
+        Parameters
+        ----------
+        dim : int
+            The dimension to squeeze.
+        """
         super(Squeeze, self).__init__()
         self.dim = dim
 
@@ -32,6 +47,9 @@ class Squeeze(nn.Module):
 
 class DropInvalidSpectra(nn.Module):
     def __init__(self):
+        """
+        Drop the spectrum, image, targetid, and redshift of samples where the spectrum is all zeros.
+        """
         super(DropInvalidSpectra, self).__init__()
 
     def forward(self, batch):
@@ -48,6 +66,16 @@ class DropInvalidSpectra(nn.Module):
 
 class DropOnRedshift(nn.Module):
     def __init__(self, z_min=0.0, z_max=0.8):
+        """
+        Drop the spectrum, image, targetid, and redshift of samples where the redshift is not within the desired range.
+
+        Parameters
+        ----------
+        z_min : float
+            Minimum redshift to keep.
+        z_max : float
+            Maximum redshift to keep.
+        """
         super(DropOnRedshift, self).__init__()
         self.z_min = z_min
         self.z_max = z_max
@@ -67,17 +95,17 @@ class DropOnRedshift(nn.Module):
         return batch
 
 
-class Standardize(nn.Module):
+class Standardise(nn.Module):
     def __init__(self, return_mean_and_std: bool = True):
         """
-        Standardize a tensor along the last dimension.
+        Standardise a tensor along the last dimension.
 
         Parameters
         ----------
         return_mean_and_std : bool
             If True, return the mean and standard deviation of the input tensor along the last dimension.
         """
-        super(Standardize, self).__init__()
+        super(Standardise, self).__init__()
 
         self.return_mean_and_std = return_mean_and_std
 
@@ -87,7 +115,7 @@ class Standardize(nn.Module):
         means = x.mean(dim=-1, keepdims=True) + eps  # shape (batch_size, n_channels)
         stds = x.std(dim=-1, keepdims=True) + eps  # shape (batch_size, n_channels)
 
-        # Standardize the spectrum
+        # Standardise the spectrum
         standardized_x = (x - means) / stds
 
         # Concatenate along the channel dimension
@@ -97,38 +125,17 @@ class Standardize(nn.Module):
             return standardized_x
 
 
-class NormaliseSpectrum(nn.Module):
-    def __init__(
-        self, restframe_wavelengths: torch.Tensor, normalisation_range=(5300, 5850)
-    ):
+class StandardiseAlong(nn.Module):
+    def __init__(self, dims: list | int):
         """
-        Normalise the spectrum using the median flux over the wavelength range [5300, 5850] Angstroms, in the rest
-        frame.
+        Standardise a tensor along the given dimensions.
+
+        Parameters
+        ----------
+        dims : list | int
+            A list of dimensions along which to standardise the tensor.
         """
-        super(NormaliseSpectrum, self).__init__()
-        self.register_buffer('restframe_wavelengths', restframe_wavelengths)
-        self.normalisation_range = normalisation_range
-
-    def forward(self, x) -> torch.Tensor | tuple[torch.Tensor]:
-        assert x.shape[-1] == self.restframe_wavelengths.shape[-1], (
-            f'Spectrum dimensions must be equal to wavelength '
-            f'dimensions {len(self.restframe_wavelengths)}'
-        )
-
-        mask = (self.restframe_wavelengths >= self.normalisation_range[0]) & (
-            self.restframe_wavelengths <= self.normalisation_range[1]
-        )
-
-        median_flux = x[:, :, mask].median(dim=-1, keepdim=True)[0]
-
-        normalised_spectrum = x / (median_flux + 1e-6)
-
-        return normalised_spectrum
-
-
-class MeanNormalise(nn.Module):
-    def __init__(self, dims):
-        super(MeanNormalise, self).__init__()
+        super(StandardiseAlong, self).__init__()
         self.dims = dims
 
     def forward(self, x) -> torch.Tensor | tuple[torch.Tensor]:
@@ -144,76 +151,16 @@ class MeanNormalise(nn.Module):
 
 class ExtractKey(nn.Module):
     def __init__(self, key):
+        """
+        Extract a key from a dictionary.
+
+        Parameters
+        ----------
+        key : str
+            The key to extract from the dictionary.
+        """
         super(ExtractKey, self).__init__()
         self.key = key
 
     def forward(self, x):
         return x[self.key]
-
-
-class ToRGB(nn.Module):
-    def __init__(self, scales=None, m=0.03, Q=20, bands=['g', 'r', 'z']):
-        """
-        Takes in image of shape (N, C, L, W) converts from native telescope image scaling to RGB.
-        Taken directly from Stein, et al, (2021).
-        """
-        super(ToRGB, self).__init__()
-        rgb_scales = {
-            'u': (2, 1.5),
-            'g': (2, 6.0),
-            'r': (1, 3.4),
-            'i': (0, 1.0),
-            'z': (0, 2.2),
-        }
-        if scales is not None:
-            rgb_scales.update(scales)
-
-        self.rgb_scales = rgb_scales
-        self.m = m
-        self.Q = Q
-        self.bands = bands
-        self.axes, self.scales = zip(*[rgb_scales[bands[i]] for i in range(len(bands))])
-
-        # rearrange scales to correspond to image channels after swapping
-        self.scales = torch.tensor([self.scales[i] for i in self.axes])
-
-    def forward(self, image):
-        self.scales = self.scales.to(image.device)
-        image = image.permute(0, 2, 3, 1)
-
-        I = torch.sum(torch.clamp(image * self.scales + self.m, min=0), dim=-1) / len(
-            self.bands
-        )
-
-        fI = torch.arcsinh(self.Q * I) / torch.sqrt(torch.tensor(self.Q, dtype=I.dtype))
-        I = I + (I == 0).float() * 1e-6
-
-        image = image * (self.scales + self.m * (fI / I).unsqueeze(-1)).to(image.dtype)
-
-        image = torch.clamp(image, 0, 1)
-
-        return image.permute(0, 3, 1, 2)
-
-
-class InterpolationImputeNans1d(nn.Module):
-    def __init__(self):
-        """
-        Impute NaNs in a 1D tensor by linear interpolation with the left and right neighbors.
-
-        The kernel used for convolution is [0.5, 0, 0.5], this is applied to the input tensor which should be of shape
-        (batch_size, channel, length).
-        """
-        super(InterpolationImputeNans1d, self).__init__()
-        self.kernel = torch.tensor([[[0.5, 0, 0.5]]], dtype=torch.float32)
-
-    def forward(self, x):
-        nans = torch.isnan(x)  # identify NaNs in the tensor
-        x = torch.nan_to_num(x, nan=0.0)  # temporarily replace NaNs with zeros
-
-        # Apply convolution to get the average of the left and right neighbors
-        neighbors_avg = F.conv1d(x, self.kernel.to(x.device), padding=1)
-
-        # Replace NaNs with the average of their neighbors
-        x_imputed = torch.where(nans, neighbors_avg, x)
-
-        return x_imputed
