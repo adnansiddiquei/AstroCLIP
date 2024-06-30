@@ -39,7 +39,7 @@ The legend on Figure~\eqref{fig:train_loss} applies to both plots.}
 Our AstroCLIP model unifies these two embedders into a single model, and then fine-tunes the embeddings using the InfoNCE loss
 (Equation~\eqref{eq:infonce}).
 The embedding dimensionality was varied through the range $[8, 16, 32, 64, 128, 256, 512]$ and each model was trained for
-75 epochs which took approximately 3.5 hours on a single NVIDIA A100-SXM4-80GB GPU.
+75 epochs which took approximately 3.5 hours (per model) on a single NVIDIA A100-SXM4-80GB GPU.
 
 Through some exploratory analysis, we fixed a few hyperparameters: batch size of 512; learning rate of $5e^{-4}$; a weight
 decay of $1e^{-4}$; and a temperature parameter in the InfoNCE loss of 0.07; and only varied the embedding dimensionality.

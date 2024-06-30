@@ -3,7 +3,7 @@
 
 \section{A Review of AstroCLIP}\label{sec:original-paper}
 For a detailed description of AstroCLIP's original implementation, we refer the reader to~\cite{astroclip}, but given that
-this is a reproduction of their work, we provide brief overview of their method and key results here.
+this is a reproduction of their work, we provide a brief overview of their method and key results here.
 Their approach consisted of two main components, (1) self-supervised pre-training of a novel transformer-based spectrum
 embedder and a vision transformer image embedder to generate high quality single-modal embeddings followed by (2) a
 contrastive learning approach to align the two embedders into a shared latent space.
@@ -11,7 +11,7 @@ contrastive learning approach to align the two embedders into a shared latent sp
 Given that galaxy spectra and galaxy images are two different views on the same underlying physical object, the
 contrastive learning approach relies on the assumption that there is enough mutual information between the two views
 to align them into a shared latent space.
-The embedders are aligned by maximising the similarity of the embeddings of augmented views of the same object and
+The embedders are aligned by maximising the similarity of the image and spectra embedding that refer to the same object, and
 minimising the similarity of the embeddings of different objects.
 This is done under the InfoNCE loss~\citep{oord2019}, as per Equation~\eqref{eq:infonce}
 

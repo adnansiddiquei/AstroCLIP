@@ -37,13 +37,13 @@ Our 128-dim image embedder outperforms the 512-dim image embedder from~\cite{ast
 prediction task (across a larger range in redshift values) with an $R^{2}$ value of 0.80 compared to their 0.79;
 but falls short in the spectroscopic redshift prediction task with an $R^{2}$ value of 0.94 compared to their 0.98.
 Figure~\eqref{fig:r2_vs_embedding_dim} then shows this same data in a more succinct manner for all embedding dimensionalities.
-For a like-by-like comparison to~\cite{astroclip}, our 512-dim embedding performs worse in the photometric redshift prediction
+For a like-by-like comparison to~\cite{astroclip}, our 512-dim embedding performs marginally worse in the photometric redshift prediction
 task with an $R^{2}$ value of 0.79, and marginally better in the spectroscopic redshift prediction task with an $R^{2}$ value
 of 0.95.
 These results demonstrate strong evidence that our AstroCLIP model is able to learn a meaningful representation of the
 data, as the redshift predictions are highly correlated with the true redshift values.
-More interestingly, our results show that even low-dimensional embeddings are able to perform well in zero-shot
-redshift prediction tasks, with the 8-dim and 16-dim embeddings generally performing at a similar level to the higher
+More interestingly, our results show that even low-dimensional embeddings are able to perform well in the zero-shot
+redshift prediction task, with the 8-dim and 16-dim embeddings generally performing at a similar level to the higher
 dimensional embeddings across all prediction types.
 
 Architecturally, these results indicates that the vision transformer architecture used by~\cite{astroclip} gave no
