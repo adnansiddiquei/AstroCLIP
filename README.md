@@ -138,6 +138,8 @@ They have not been made publicly available given the assessed nature of this wor
 
 ## Report
 The report and executive summary for this reproduction is available in the [`report`](report) folder.
+- [Report](report/main.pdf)
+- [Executive Summary](report/exec-summary.pdf)
 
 ## Acknowledgements
 I would primarily like to thank [Miles Cranmer](https://github.com/MilesCranmer) for his guidance on this project.
@@ -147,3 +149,7 @@ and the [`astroclip/legacy_survey.py`](astroclip/legacy_survey.py) file was take
 The pretrained spectrum encoder was acquired from the works of [Liang, Melchior et al (2023)](https://github.com/pmelchior/spender)
 and the pretrained image encoder was acquired from the works of [Stein et al. (2021)](https://github.com/georgestein/ssl-legacysurvey).
 The `ToRGB` function used for plotting the images was taken as is (with minor modifications) from [legacysurvey](https://github.com/legacysurvey/imagine).
+
+## Use of Auto-Generation tools
+GitHub co-pilot use was minimal, and was limited to using the auto-complete for generating documentation for some functions
+and classes.

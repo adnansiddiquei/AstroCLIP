@@ -52,11 +52,12 @@ zero-shot and few-shot in-modal redshift predictions; (3) zero-shot and few-shot
 (stellar mass, metallicity, age and star formation rate) predictions.
 
 The similarity search successfully extracts visually similar spectra and images.
-The zero-shot redshift estimation were performed by predicting the redshift of a galaxy using the redshift of its nearest
+The zero-shot redshift estimations were performed by predicting the redshift of a galaxy using the redshift of its nearest
 16 embedded neighbours of the same modality.
 Their zero-shot image redshift predictions gave an $R^{2}$ metric (coefficient of determination) of 0.78 (with predicted
-redshift plotted against true redshift), and their zero-shot spectrum redshift predictions gave an $R^{2}$ metric of 0.98.
-The image results outperformed the supervised baseline models (ResNet18 and MLP) as well as the state-of-the-art
+redshift plotted against true redshift), and their zero-shot spectrum redshift predictions gave an $R^{2}$ metric of 0.98;
+these are shown on the top row of Figure~\eqref{fig:rkr} - this Figure is discussed in detail in Section~\eqref{sec:results}.
+Their image results outperformed the supervised baseline models (ResNet18 and MLP) as well as the state-of-the-art
 self-supervised model for galaxy images~\citep{stein2021}.
 In this paper we attempt to reproduce the metrics listed above, but we refer the reader to the original paper for a
 more detailed analysis of the results.

@@ -14,12 +14,11 @@ Notation used in this section intentionally follows that of the original paper f
 
 \begin{figure}[t]
     \centering
-    \makebox[\textwidth]{\includegraphics[width=1\textwidth]{figures/redshift_knn_regression}}
-    \caption{In-modal and cross-modal zero-shot redshift predictions using k-NN regression on the learned embeddings for the
-    best 128-dimensional embedding model.
-    The y-axis shows the predicted redshift (the average of the 16 closest neighbours in terms of Euclidean distance) and the x-axis shows the true redshift.
-    The dashed line represents a perfect prediction, and the $R^{2}$ of the fit is shown in the top left corner.
-    $S_{kNN}(\mathbf{z}_{q}^{sp}, \mathbf{z}^{im})$ indicates the cross-modal prediction where a spectrums redshift was
+    \makebox[\textwidth]{\includegraphics[width=1\textwidth]{figures/redshift_knn_regression_parker}}
+    \caption{k-NN regression for zero-shot redshift prediction, showing predicted vs. true redshift.
+    Top row is results from \cite{astroclip} for their 512-dim embedding model, bottom row is results from our 128-dim embedding
+    model.
+    $S_{kNN}(\mathbf{z}_{q}^{sp}, \mathbf{z}^{im})$ indicates the cross-modal prediction type where a spectrums redshift was
     predicted using its 16 closest embeddings derived from galaxy images.}
     \label{fig:rkr}
 \end{figure}
@@ -27,44 +26,38 @@ Notation used in this section intentionally follows that of the original paper f
 \begin{figure}[t]
     \centering
     \makebox[\textwidth]{\includegraphics[width=1\textwidth]{figures/r2_vs_embedding_dim}}
-    \caption{Exactly the same results as shown in Figure~\eqref{fig:rkr}, but plotted more succinctly for all embedding
-    dimensionalities, and all types of in-modal and cross-modal prediction types.
-    Each plot shows a prediction type (corresponding to one of the 4 plots in Figure~\eqref{fig:rkr}).
-    The x-axis is the embedding dimensionality and the y-axis is the $R^{2}$ value of the predictions.
-    There are exactly 7 points on each plot, one for each embedding dimensionality tested.
-    The dashed lines show the best model for each prediction type.}
+    \caption{Consolidated results for all embedding dimensions and prediction types, displaying $R^{2}$ values vs. embedding dimensionality.
+    These are the $R^{2}$ values derived if Figure~\eqref{fig:rkr} were plotted for all embedding dimensionalities.}
     \label{fig:r2_vs_embedding_dim}
 \end{figure}
 
 Figure~\eqref{fig:rkr} shows the zero-shot redshift predictions using k-NN regression on the learned embeddings for
-the best 128-dimensional embedding model, for both in-modal (spectrum to spectrum, image to image) and cross-modal (spectrum to image,
-image to spectrum) prediction types.
+the best 128-dimensional embedding model, and compares this to the 512-dimensional results from~\cite{astroclip}.
+Our 128-dim image embedder outperforms the 512-dim image embedder from~\cite{astroclip} in the photometric redshift
+prediction task (across a larger range in redshift values) with an $R^{2}$ value of 0.80 compared to their 0.79;
+but falls short in the spectroscopic redshift prediction task with an $R^{2}$ value of 0.94 compared to their 0.98.
 Figure~\eqref{fig:r2_vs_embedding_dim} then shows this same data in a more succinct manner for all embedding dimensionalities.
+For a like-by-like comparison to~\cite{astroclip}, our 512-dim embedding performs worse in the photometric redshift prediction
+task with an $R^{2}$ value of 0.79, and marginally better in the spectroscopic redshift prediction task with an $R^{2}$ value
+of 0.95.
 These results demonstrate strong evidence that our AstroCLIP model is able to learn a meaningful representation of the
-data, as the redshift predictions are highly correlated with the true redshift values, even with low embedding dimensionality.
-For a like-by-like comparison to~\cite{astroclip} who use a 512-dimensional embedding, our photometric
-$S_{kNN}(\mathbf{z}_{q}^{im}, \mathbf{z}^{im})$ redshift predictions for the 512-dimensional embedding was 0.79 which was
-exactly the same as that of~\cite{astroclip}.
-However, our spectroscopic $S_{kNN}(\mathbf{z}_{q}^{sp}, \mathbf{z}^{sp})$ redshift predictions for the 512-dimensional
-embedding was 0.95 compared to the 0.98 reported by~\cite{astroclip}, which alludes to the effectiveness their novel
-transformer architecture for spectral embeddings.
-Notably, our 128-dimensional embedding model marginally outperforms the 512-dimensional embedding model in the
-photometric redshift prediction task with an $R^{2}$ value of 0.80, as shown on both Figure~\eqref{fig:rkr}
-and Figure~\eqref{fig:r2_vs_embedding_dim}.
-This indicates that the vision transformer architecture used by~\cite{astroclip} gave no significant advantage over the
-2D convolutional architecture used in this work for the image embedder.
-Furthermore, as shown on Figure~\eqref{fig:r2_vs_embedding_dim}, even the low 8-dimensional and 16-dimensional embedding
-models perform extremely well across all prediction types, which implies that there is a meaningful amount of mutual
-information between the two modalities enabling the model to learn a meaningful representation even in low dimensions.
+data, as the redshift predictions are highly correlated with the true redshift values.
+More interestingly, our results show that even low-dimensional embeddings are able to perform well in zero-shot
+redshift prediction tasks, with the 8-dim and 16-dim embeddings generally performing at a similar level to the higher
+dimensional embeddings across all prediction types.
+
+Architecturally, these results indicates that the vision transformer architecture used by~\cite{astroclip} gave no
+significant advantage over the 2D convolutional architecture used in this work for the image embedder.
+However, the transformer architecture used for the spectrum embedder by~\cite{astroclip} outperformed the 1D convolutional
+architecture used in this work for the spectrum embedder, and adds promise to the potential of transformer architectures
+for spectral data.
 
 \subsection{Retrieval by Cosine Similarity}\label{subsec:results-retrieval}
 \begin{figure}[t]
     \centering
     \makebox[\textwidth]{\includegraphics[width=1\textwidth]{figures/sim_search_images_all}}
-    \caption{In-modal and cross-modal similarity search using cosine similarity on the learned embeddings for the
-        best 128-dimensional embedding model.
-        (a) shows the query galaxies; (b) shows the 3 most similar galaxies using an in-modal image to image search; and
-        so on.
+    \caption{Cosine similarity search results using the 128-dimensional model. (a) 4 Query galaxies;
+        (b, c, d, e) Top 3 similar galaxies across the 4 prediction types.
         By construction, the most similar in-modal galaxy to any given galaxy is itself, hence, the first column of images
         in (b) and (c) are identical to the query image in (a).}
     \label{fig:ssia}
@@ -73,11 +66,9 @@ information between the two modalities enabling the model to learn a meaningful 
 \begin{figure}[t]
     \centering
     \makebox[\textwidth]{\includegraphics[width=1\textwidth]{figures/sim_search_spectra}}
-    \caption{In-modal and cross-modal similarity search using cosine similarity on the learned embeddings for the
-        best 128-dimensional embedding model.
-        Each row in this figure depicts a single query galaxy (query spectrum in red, galaxy imaged in plot (b)), with
-        each subfigure showing the spectrum of the 3 most cosine similar galaxies to the
-        query galaxy by in-modal and cross-modal similarity search.}
+    \caption{Cosine similarity search for spectra using the 128-dimensional model.
+    Each row shows a query galaxy (galaxy imaged in (b)), each subfigure shows the 3 most similar spectra to the query galaxy
+       for the given prediction type.}
     \label{fig:sss}
 \end{figure}
 
