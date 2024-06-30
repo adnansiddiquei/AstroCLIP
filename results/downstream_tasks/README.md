@@ -9,18 +9,22 @@ To run the notebooks, you will need to do the following:
 AstroCLIP model.
 2. Move the trained AstroCLIP model to the cache directory.
 I.e., move `out/astroclip_ckpt_{jobID}/astroclip-epoch={epoch}-min.ckpt` (where the `train_astroclip.py` script will
-naturally output the lowest validation loss model) to `{cache_dir}/astroclip_model.ckpt` (feel free to call it whatever
-you want, in this case I have called it `astroclip_model.ckpt`).
-3. Run `python generate_embeddings.py --config=local --model-checkpoint=astroclip_model.ckpt` to generate the trained
+naturally output the lowest validation loss model) to `{cache_dir}/model-128-dim.ckpt` (feel free to call it whatever
+you want, in this case I have called it `model-128-dim.ckpt` under the assumption that this is a 128-dim embedding model).
+3. Change the `generate_embeddings.embedding_dim` key in `hyperparams.yaml` to `128` (or one of [8, 16, 32, 64, 128, 256, 512],
+based on the embedding dimensionality of the model you have trained) so that model checkpoint can be loaded correctly and
+embeddings of the correct dimensionality are generated.
+4. Run `python generate_embeddings.py --config=local --model-checkpoint=model-128-dim.ckpt` to generate the trained
 embeddings. Ensure to pass in the correct model checkpoint name (exactly as it is saved in the cache directory).
 The script will output the following files to the cache directory:
     - `spectrum_embeddings.pt`
     - `image_embeddings.pt`
     - `valid_indices.pt`
-4. You can now run through the notebooks to generate the results of the downstream tasks and the plots used in the paper.
+5. You can now run through the notebooks to generate the results of the downstream tasks and the plots used in the paper.
 
 **What is the `valid_indices.pt`?**: There are 39,599 image-spectra pairs in the validation set.
-The `generate_embeddings.py` script will therefore generate a tensor of shape (39599, 128) for the spectrum and image embeddings.
+The `generate_embeddings.py` script will therefore generate a tensor of shape (39599, 128) for the spectrum and image embeddings
+(given that you are using a 128-dim embedding model).
 `valid_indices.pt` will be of shape (39219,) which is exactly 380 elements shorter than the embedding tensors.
 This is because there are 380 image-spectra pairs that have been removed from the validation set due to invalid spectra
 or redshift being outside the range [0, 0.8] (see Section (3.4) of the report)

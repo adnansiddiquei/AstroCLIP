@@ -64,3 +64,4 @@ h09:
 
 generate_embeddings:
   batch_size: 256
+  embedding_dim: 128

@@ -135,8 +135,13 @@ See the [`results/training`](results/training) folder for the scripts, notebooks
 used to generate the training related statistics and plots in the paper.
 
 ## AstroCLIP Model Weights
-The Lightning model checkpoints for all trained AstroCLIP models used in the paper are available on request.
-They have not been made publicly available given the assessed nature of this work.
+The Lightning model checkpoints for all 7 trained AstroCLIP models used in the paper are available on HuggingFace
+[here](https://huggingface.co/adnanshirik/astroclip). Given that this piece of work is assessed, the model page on
+HuggingFace is gated and access will need to be requested until the assessment is complete.
+
+If you use one of these trained models, you can copy the model weights directly into the `cache_dir` and follow the
+instructions in [`results/downstream_tasks/`](results/downstream_tasks) to reproduce the results of the
+downstream tasks for the trained model.
 
 ## Report
 The report and executive summary for this reproduction is available in the [`report`](report) folder.

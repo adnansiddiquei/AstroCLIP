@@ -45,14 +45,16 @@ def main():
 
     cache_dir = config['cache_dir']
     output_dir = config['output_dir']
+    embedding_dim = hparams['embedding_dim']
 
     # Get the encoders
     spectrum_encoder = load_pretrained_spectrum_encoder(
         f'{cache_dir}/{config["pretrained_spectrum_encoder"]}',
+        embedding_dim=embedding_dim,
     )
 
     image_encoder = load_pretrained_image_encoder(
-        f'{cache_dir}/{config["pretrained_image_encoder"]}',
+        f'{cache_dir}/{config["pretrained_image_encoder"]}', embedding_dim=embedding_dim
     )
 
     cross_modal_transforms = get_cross_modal_transforms()
