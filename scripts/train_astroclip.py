@@ -41,14 +41,18 @@ def main():
     cache_dir = config['cache_dir']
     output_dir = config['output_dir']
 
+    # get the cross-modal transforms, these transforms clip the redshift range to [0, 8] and drop invalid spectra
     cross_modal_transforms = get_cross_modal_transforms()
 
+    # Get the train and validation transforms/augmentations for the image and spectrum data
     img_train_transforms, img_val_transforms = get_image_operations()
 
     spectrum_train_transforms, spectrum_val_transforms = get_spectrum_operations(
         output_dir
     )
 
+    # Load the spectrum encoder and image encoder, we load them using the pre-trained weights ensure to amend them
+    # to output the desired embedding dimensionality
     spectrum_encoder = load_pretrained_spectrum_encoder(
         f'{cache_dir}/{config["pretrained_spectrum_encoder"]}',
         unfreeze_all=hparams['unfreeze_all'],
@@ -61,17 +65,21 @@ def main():
         embedding_dim=hparams['embedding_dim'],
     )
 
+    # If the model checkpoints directory is provided, create it if it doesn't exist
     model_checkpoints_dir = f'{output_dir}/{args.ckptdir}' if args.ckptdir else None
 
     if args.ckptdir and not os.path.exists(model_checkpoints_dir):
         os.makedirs(model_checkpoints_dir)
 
+    # Load the dataset, and create the dataloaders
     dataset, train_loader, val_loader = create_dataloaders(
         cache_dir, hparams['batch_size'], config['num_workers']
     )
 
-    # Get the valid redshifts for the validation set, this is so we can compute and track the R-squared values of the
-    # redshift predictions as we go
+    # Get the valid redshifts for the validation set, these are all the redshifts in the validation set that are
+    # not dropped after applying the cross-modal transforms.
+    # We want these simply for logging purposes, we log the zero-shot redshift prediction R^{2} metric to WandB
+    # at every epoch for easier analysis of the model's performance.
     if os.path.exists(f'{cache_dir}/val_redshifts.pt'):
         val_redshifts = torch.load(f'{cache_dir}/val_redshifts.pt')
     else:
@@ -80,9 +88,11 @@ def main():
             for batch in tqdm(val_loader):
                 batch = cross_modal_transforms(batch)
                 val_redshifts = torch.cat([val_redshifts, batch['redshift']])
+
+        # save it down for future models. This is a one-time operation, it does not need to be re-computed again
         torch.save(val_redshifts, f'{cache_dir}/val_redshifts.pt')
 
-    # define the contrastive learning model
+    # define the AstroCLIP model
     model = AstroCLIP(
         encoders=[image_encoder, spectrum_encoder],
         cross_modal_transforms=cross_modal_transforms,

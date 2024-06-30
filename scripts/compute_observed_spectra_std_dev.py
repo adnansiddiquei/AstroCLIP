@@ -5,7 +5,6 @@ from astroclip.utils import (
     save_fig,
     load_config,
 )
-import os
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -32,14 +31,6 @@ def main():
 
     cache_dir = config['cache_dir']
     output_dir = config['output_dir']
-
-    if not os.path.exists(cache_dir):
-        raise FileNotFoundError(
-            f'Cache directory {cache_dir} does not exist. Please download the dataset first.'
-        )
-
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
 
     # load the dataset from cache
     dataset = download_desi_dataset(cache_dir)
