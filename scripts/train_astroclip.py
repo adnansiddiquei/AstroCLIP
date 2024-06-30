@@ -41,8 +41,6 @@ def main():
     cache_dir = config['cache_dir']
     output_dir = config['output_dir']
 
-    # TODO: batch_transforms should really be applied to the entire dataset, and not a batch at a time. This will result
-    # in inconsistent batch sizes (max 1% fluctuation in batch size)
     cross_modal_transforms = get_cross_modal_transforms()
 
     img_train_transforms, img_val_transforms = get_image_operations()
