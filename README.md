@@ -78,6 +78,8 @@ The pretrained image encoder was taken from the works of [Stein et al. (2021)](h
 and can be acquired by following the instructions on the linked repository. Download the `resnet50.ckpt` file from the
 Globus endpoint provided by Stein, and place it into the `cache_dir`.
 
+Ensure that both pre-trained models are named exactly as they are specified in their respective keys in the `config.yaml`.
+
 ### 3. Generate the spectral standard deviations
 Run the following script:
 ```bash
