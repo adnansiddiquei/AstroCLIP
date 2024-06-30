@@ -338,7 +338,7 @@ def load_config(
         output_dir = config_header['output_dir']
 
         if not os.path.exists(cache_dir):
-            raise FileNotFoundError(f'Cache directory {cache_dir} does not exist.')
+            os.makedirs(cache_dir)
 
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
